@@ -1,0 +1,669 @@
+# =============================================================================
+# データカタログ 知識層（単一の真実源）
+#
+# parquet から自動取得できない情報だけを手で書く: カテゴリ・提供者・頻度・URL・
+# 引用・ライセンス注意・A1/A2 用途・カラム定義・リレーション。
+# スキーマ / 行数 / 期間 / サイズは build 時に parquet から自動マージされる。
+#
+# 新しいソースを足したら: data/processed に parquet を置き、ここに 1 スタンザ追加。
+# 未記載でも自動層で表示され "未ドキュメント" として警告される（ドリフト検知）。
+#
+# files:  data/processed からの相対 glob（複数可）
+# usage:  A1 / A2 への寄与  core | aux | edge | none
+# relations: 他データセットとの結合
+#   - to: <dataset key>        遷移先
+#     from / on: 結合キー（from=自テーブル列, on=相手列。省略時 date 軸）
+#     kind: entity-bridge | shared-date | derived
+# columns: 列名 -> 定義。`{01..30}` 等のレンジ表記で列族をまとめて記述可
+# rebuild: python -m fi_research.catalog build
+# =============================================================================
+
+meta:
+  updated: "2026-05-26"
+  note: >
+    公開・半公開データのみで構築する固定収益研究データ基盤のマスタカタログ。
+    取得経路・スキーマ詳細は docs/data_sources.md、隠れた制約は
+    memory/data_source_caveats.md を参照。
+
+# カテゴリ表示順と色（HTML のグルーピング用）
+categories:
+  - {key: Rates,        label: 金利・期間構造,        color: "#2563eb"}
+  - {key: Credit,       label: クレジット,            color: "#d97706"}
+  - {key: Inflation,    label: インフレ・実質金利,    color: "#0891b2"}
+  - {key: Macro,        label: マクロ・金融政策,      color: "#059669"}
+  - {key: Vol,          label: ボラティリティ,        color: "#7c3aed"}
+  - {key: Stress,       label: 金融ストレス,          color: "#db2777"}
+  - {key: EquityFactor, label: 株式・クロスアセット,  color: "#ca8a04"}
+  - {key: Dealer,       label: ディーラー・建玉,      color: "#0d9488"}
+  - {key: Fundamentals, label: 発行体ファンダ・識別子, color: "#9333ea"}
+  - {key: BondFactor,   label: 社債ファクター,        color: "#e11d48"}
+  - {key: International, label: 海外・国際比較,        color: "#475569"}
+
+# 未取得データ（取得可だが未実装 / 取得困難）。優先度は A1/A2 寄与で評価。
+pending:
+  - {data: "CDX IG / HY index spreads", provider: Markit, status: 取得可, priority: ★★, theme: A2, note: "OAS と独立したクレジット信号"}
+  - {data: "CIK ↔ ISIN マッピング", provider: "OpenFIGI Search / 別 DB", status: 取得可, priority: ★★, theme: A2, note: "Mapping API は ISIN を返さない。社債リターンとの橋に別経路が必要"}
+  - {data: "FFIEC bank Call Reports (031/041)", provider: FFIEC CDR, status: 取得可, priority: ★, theme: A2, note: "銀行発行体に絞った社債分析時"}
+  - {data: "MOVE 公式ソース移行 (ICE/Cboe)", provider: ICE, status: 取得可, priority: ★, theme: A1, note: "現在 Yahoo 経由。論文 reproducibility で公式へ"}
+  - {data: "JKP Global Factor Data", provider: jkpfactors.com, status: "取得可(手動DL)", priority: ★, theme: A2, note: "153 factor × 93 国。free account 登録要"}
+  - {data: "FRED-MD 132 系列", provider: McCracken-Ng, status: "取得可(手動DL)", priority: ★, theme: A1, note: "Akamai anti-bot で自動 fetch ブロック。FGX 候補ファクター拡張用"}
+  - {data: "TRACE Standard / Enhanced", provider: "FINRA / WRDS", status: 取得困難, priority: ★★, theme: A2, note: "個別約定。WRDS（大学アカウント）待ち。A2 横断回帰・BBW 直接再現に必須"}
+  - {data: "Mergent FISD", provider: WRDS, status: 取得困難, priority: ★★, theme: A2, note: "社債マスター（発行体/発行条件/格付履歴）"}
+  - {data: "格付け別 OAS 長期 (1996-2023)", provider: ICE/BofA, status: 取得困難, priority: ★, theme: A2, note: "商用ライセンス。BAA10Y/AAA10Y で proxy"}
+  - {data: "日証協 公社債店頭参考値", provider: 日証協, status: "取得可(scraping)", priority: ★★, theme: A2, note: "日本の per-bond daily 参考価格。A2 日本拡張の TRACE 相当"}
+
+datasets:
+
+  # ---- Rates ----------------------------------------------------------------
+  - key: gsw_nominal
+    title: GSW 名目ゼロクーポンイールドカーブ
+    category: Rates
+    provider: FRB Board (staff)
+    loader: fi_research.data.treasury.load_gsw_nominal
+    files: ["gsw_nominal.parquet"]
+    frequency: 営業日次
+    upstream_url: https://www.federalreserve.gov/data/yield-curve-tables/feds200628.csv
+    citation: "Gürkaynak, Sack & Wright (2007), JME 54(8)."
+    license: public
+    caveats:
+      - "BETA3 / TAU2 は 1980-01 以降のみ。1961-1979 は 4 パラメータ NS。"
+    usage: {A1: core, A2: core}
+    columns:
+      date: 観測日（営業日）
+      "BETA0..BETA3": Nelson-Siegel-Svensson パラメータ（level/slope/curvature/2nd hump）
+      TAU1: NSS 減衰パラメータ 1
+      TAU2: NSS 減衰パラメータ 2（1980- のみ）
+      "SVENY{01..30}": ゼロクーポン利回り 満期 1-30y（連続複利, %）
+      "SVENPY{01..30}": パー利回り 満期 1-30y（利付債等価, %）
+      "SVENF{01..30}": 瞬間フォワードレート 満期 1-30y（連続複利, %）
+      "SVEN1F{01,04,09}": 1 年先フォワード（利付債等価, %）
+
+  - key: gsw_real
+    title: GSW 実質(TIPS)ゼロクーポンイールドカーブ
+    category: Rates
+    provider: FRB Board (staff)
+    loader: fi_research.data.treasury.load_gsw_real
+    files: ["gsw_real.parquet"]
+    frequency: 営業日次
+    upstream_url: https://www.federalreserve.gov/data/yield-curve-tables/feds200805.csv
+    citation: "Gürkaynak, Sack & Wright (2010), AEJ:Macro 2(1)."
+    license: public
+    caveats:
+      - "breakeven は流動性・インフレリスクプレミアムを含み『期待インフレ』ではない（公式注記）。"
+    usage: {A1: aux, A2: edge}
+    columns:
+      date: 観測日（営業日）
+      "BETA0..BETA3": NSS パラメータ
+      TAU1: NSS 減衰パラメータ 1
+      TAU2: NSS 減衰パラメータ 2
+      "TIPSY{02..20}": 実質ゼロ利回り 満期 2-20y
+      "TIPSPY{02..20}": 実質パー利回り 満期 2-20y
+      "TIPSF{02..20}": 実質瞬間フォワード 満期 2-20y
+      "TIPS1F{02..09}": 実質 1 年先フォワード
+      "TIPSF5F5": 実質 5y-5y フォワード（中期実質金利）
+      "BKEVEN{02..20}": 名目−実質のインフレ補償（breakeven）
+      "BKEVEN5F5": 5y-5y フォワード breakeven
+
+  - key: fred_rates
+    title: FRED 金利（CMT・政策金利・期間スプレッド）
+    category: Rates
+    provider: FRED (St. Louis Fed)
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_DGS*.parquet", "fred_DFF.parquet", "fred_SOFR.parquet", "fred_T10Y2Y.parquet", "fred_T10Y3M.parquet"]
+    frequency: 日次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "Federal Reserve Bank of St. Louis, FRED."
+    license: public (要 API key)
+    usage: {A1: core, A2: aux}
+    columns:
+      date: 観測日
+      value: 値（`.` は NaN 変換済）
+      series_id: FRED シリーズ ID
+    members_note: "メンバー = 各 FRED シリーズ。DGS3MO-DGS30=国債 CMT、T10Y2Y/T10Y3M=期間スプレッド、DFF/SOFR=政策金利。"
+
+  # ---- Credit ---------------------------------------------------------------
+  - key: frb_ebp
+    title: FRB Excess Bond Premium / GZ スプレッド
+    category: Credit
+    provider: FRB Board
+    loader: fi_research.data.frb_ebp.load_ebp
+    files: ["frb_ebp.parquet"]
+    frequency: 月次
+    upstream_url: https://www.federalreserve.gov/econres/notes/feds-notes/ebp_csv.csv
+    citation: "Favara, Gilchrist, Lewis & Zakrajšek (2016) FEDS Notes / Gilchrist & Zakrajšek (2012) AER 102(4)."
+    license: public
+    usage: {A1: core, A2: core}
+    columns:
+      date: 月初日付
+      gz_spread: GZ スプレッド（社債利回り − リスクフリー）
+      ebp: Excess Bond Premium（GZ から予想デフォルト成分を控除した残差）
+      est_prob: 12ヶ月先リセッション確率の推定値
+
+  - key: fred_credit_oas
+    title: FRED クレジット OAS（ICE BofA）+ Moody レガシー
+    category: Credit
+    provider: FRED (ICE BofA / Moody's)
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_BAMLC*.parquet", "fred_BAMLH*.parquet", "fred_BAA10Y.parquet", "fred_AAA10Y.parquet"]
+    frequency: 日次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "ICE BofA Indices via FRED / Moody's Seasoned Corporate."
+    license: "ICE BofA OAS は過去 5 年のみ（ライセンス制約）"
+    caveats:
+      - "BAMLC* / BAMLH* は ICE ライセンスで直近 5 年だけ。長期は BAA10Y / AAA10Y で proxy。"
+    usage: {A1: aux, A2: aux}
+    columns:
+      date: 観測日
+      value: OAS / スプレッド（bp 系, %）
+      series_id: "BAMLC0A0CM=IG全体, BAMLC0A1CAAA..4CBBB=IG格付別, BAMLH0A0HYM2=HY全体, BAMLH0A1..3=HY格付別, BAA10Y/AAA10Y=Moody'sレガシー"
+
+  # ---- Inflation ------------------------------------------------------------
+  - key: fred_inflation
+    title: FRED インフレ・実質金利（TIPS / breakeven / 物価指数）
+    category: Inflation
+    provider: FRED
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_DFII*.parquet", "fred_T5YIE.parquet", "fred_T10YIE.parquet", "fred_T5YIFR.parquet", "fred_CPIAUCSL.parquet", "fred_PCEPI.parquet"]
+    frequency: 日次/月次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "Federal Reserve Bank of St. Louis, FRED."
+    license: public
+    usage: {A1: aux, A2: edge}
+    columns:
+      date: 観測日
+      value: 値
+      series_id: "DFII5..30=TIPS CMT, T5YIE/T10YIE=breakeven, T5YIFR=5y5y forward, CPIAUCSL/PCEPI=物価指数(SA)"
+
+  # ---- Macro ----------------------------------------------------------------
+  - key: fred_macro
+    title: FRED マクロ実体（生産・労働・GDP・NBER）
+    category: Macro
+    provider: FRED
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_INDPRO.parquet", "fred_UNRATE.parquet", "fred_PAYEMS.parquet", "fred_GDPC1.parquet", "fred_USREC.parquet", "fred_WALCL.parquet"]
+    frequency: 月次/四半期/週次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "Federal Reserve Bank of St. Louis, FRED."
+    license: public
+    usage: {A1: core, A2: aux}
+    columns:
+      date: 観測日
+      value: 値
+      series_id: "INDPRO=鉱工業生産, UNRATE=失業率, PAYEMS=非農業雇用, GDPC1=実質GDP, USREC=NBERリセッションダミー(0/1), WALCL=FRB総資産(QE)"
+
+  - key: mp_shocks
+    title: Bauer-Swanson 金融政策サプライズ（MPS）
+    category: Macro
+    provider: SF Fed (Bauer-Swanson)
+    loader: fi_research.data.mp_shocks.load_mp_shocks
+    files: ["mp_shocks_*.parquet"]
+    frequency: FOMC / 月次
+    upstream_url: https://www.frbsf.org/wp-content/uploads/monetary-policy-surprises-data.xlsx
+    citation: "Bauer & Swanson (2023), NBER Macro Annual."
+    license: public
+    usage: {A1: core, A2: aux}
+    columns:
+      date: イベント日 / 月
+      mps: "MPS = FF1/FF2/ED1-4 の第一主成分（標準的 MP shock）"
+      mps_orth: MPS から CB info effect を直交化した残差（推奨ショック）
+      "ff1, ff2": Fed Funds 第 1/2 contract のサプライズ
+      "ed1..ed4": Eurodollar 1-4 quarter ahead サプライズ
+      "tnote02, tnote05, tnote10, tbond": 国債利回り変化
+      sp500: 株式サプライズ
+      nfp_surp: 直前の payrolls サプライズ
+    members_note: "fomc_2023update / monthly_2023update（更新版）, fomc_original / monthly_original（元論文版・SVAR用マクロ込み）。"
+
+  # ---- Vol ------------------------------------------------------------------
+  - key: fred_vol
+    title: FRED ボラティリティ（VIX / OVX）
+    category: Vol
+    provider: FRED (CBOE)
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_VIXCLS.parquet", "fred_OVXCLS.parquet"]
+    frequency: 日次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "CBOE via FRED."
+    license: public
+    usage: {A1: core, A2: aux}
+    columns:
+      date: 観測日
+      value: インデックス値
+      series_id: "VIXCLS=株式 vol, OVXCLS=原油 vol"
+
+  - key: move
+    title: ICE BofA MOVE Index（金利ボラティリティ）
+    category: Vol
+    provider: ICE BofA (Yahoo Finance 経由)
+    loader: fi_research.data.move.load_move
+    files: ["move.parquet"]
+    frequency: 営業日次
+    upstream_url: https://query2.finance.yahoo.com/v8/finance/chart/%5EMOVE
+    citation: "ICE BofA MOVE Index."
+    license: "Yahoo 配信。論文 reproducibility では ICE 公式へ移行推奨。"
+    caveats:
+      - "Yahoo chart API は仕様変更が時々入る（v7 CSV は 2025 年に 401 化）。"
+    usage: {A1: core, A2: aux}
+    columns:
+      date: 観測日
+      close: MOVE Index 終値（金利 implied vol, bp 換算）
+
+  # ---- Stress ---------------------------------------------------------------
+  - key: ofr_fsi
+    title: OFR Financial Stress Index（総合+5カテゴリ+3地域）
+    category: Stress
+    provider: OFR (US Treasury)
+    loader: fi_research.data.ofr_fsi.load_ofr_fsi
+    files: ["ofr_fsi.parquet"]
+    frequency: 営業日次
+    upstream_url: https://www.financialresearch.gov/financial-stress-index/data/fsi.csv
+    citation: "Monin (2019), 'The OFR Financial Stress Index', Risks 7(1):25."
+    license: public
+    usage: {A1: core, A2: core}
+    columns:
+      date: 観測日（営業日）
+      ofr_fsi: 総合指数（z-score, ~0 が長期平均, 正で stress 上昇）
+      credit: クレジット系サブインデックス（OAS, CDS 等）
+      equity_valuation: 株式バリュエーション（P/E, ERP 等）
+      safe_assets: 安全資産需要（実質金利, term premium 等）
+      funding: 短期ファンディング（LIBOR-OIS, TED 等）
+      volatility: 暗黙ボラ（VIX, MOVE 等）
+      "united_states, other_advanced_economies, emerging_markets": 地域別寄与
+
+  - key: fred_fin_conditions
+    title: FRED 金融状況指数（NFCI / ANFCI / STLFSI4）
+    category: Stress
+    provider: FRED (Chicago / St. Louis Fed)
+    loader: fi_research.data.fred.load_panel
+    files: ["fred_NFCI.parquet", "fred_ANFCI.parquet", "fred_STLFSI4.parquet"]
+    frequency: 週次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "Chicago Fed (NFCI/ANFCI), St. Louis Fed (STLFSI4)."
+    license: public
+    usage: {A1: aux, A2: aux}
+    columns:
+      date: 観測日
+      value: 指数値
+      series_id: "NFCI=Chicago金融状況, ANFCI=調整版, STLFSI4=St.Louis金融ストレス"
+
+  # ---- Equity / cross-asset factors ----------------------------------------
+  - key: kf_factors
+    title: Kenneth French FF5 + Momentum
+    category: EquityFactor
+    provider: Kenneth French Data Library
+    loader: fi_research.data.kenneth_french.load_dataset
+    files: ["kf_ff5_monthly.parquet", "kf_ff5_daily.parquet", "kf_mom_monthly.parquet", "kf_mom_daily.parquet"]
+    frequency: 月次/日次
+    upstream_url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/
+    citation: "Fama & French (1993, 2015); Carhart (1997)."
+    license: public
+    usage: {A1: aux, A2: core}
+    columns:
+      date: 月初日付 / 取引日
+      "Mkt-RF": 市場超過リターン（%）
+      "SMB, HML, RMW, CMA": Size / Value / Profitability / Investment（%）
+      Mom: Momentum（%, mom データセット）
+      RF: 1ヶ月 T-bill（%, FF5 データセット）
+    members_note: "値はパーセント単位（-0.39 = -0.39%）。"
+
+  - key: kf_industries
+    title: Kenneth French 業種ポートフォリオ（12/30/49 業種）
+    category: EquityFactor
+    provider: Kenneth French Data Library
+    loader: fi_research.data.kenneth_french.load_dataset
+    files: ["kf_ind12_*.parquet", "kf_ind30_*.parquet", "kf_ind49_*.parquet"]
+    frequency: 月次/日次
+    upstream_url: https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/
+    citation: "Kenneth R. French Data Library."
+    license: public
+    usage: {A1: edge, A2: aux}
+    columns:
+      date: 月初日付 / 取引日
+      "<industry>": 各業種の value-weighted リターン（%）
+    members_note: "EDGAR の SIC コードと組み合わせて業種コントロール。ラベル対応は KF の Detail PDF 参照。"
+
+  - key: aqr_factors
+    title: AQR 公開ファクター（BAB / QMJ / Century / TSMOM）
+    category: EquityFactor
+    provider: AQR Capital Management
+    loader: fi_research.data.aqr.load_aqr
+    files: ["aqr_bab_equity.parquet", "aqr_qmj.parquet", "aqr_century_premia.parquet", "aqr_tsmom.parquet"]
+    frequency: 月次
+    upstream_url: https://www.aqr.com/Insights/Datasets
+    citation: "Frazzini & Pedersen (2014); Asness, Frazzini & Pedersen (2019)."
+    license: public (研究利用)
+    usage: {A1: edge, A2: aux}
+    members_note: "BAB Equity(各国+global), Quality-Minus-Junk, Century of Factor Premia(45 factor), Time-Series Momentum。章7 robustness で社債 α の独立性検定に。"
+
+  # ---- Dealer ---------------------------------------------------------------
+  - key: ny_fed_pd
+    title: NY Fed Primary Dealer Statistics (FR2004)
+    category: Dealer
+    provider: NY Fed Markets
+    loader: fi_research.data.ny_fed_pd.load_pd_timeseries
+    files: ["ny_fed_pd_timeseries.parquet", "ny_fed_pd_catalog.parquet", "ny_fed_pd_asofs.parquet"]
+    frequency: 週次
+    upstream_url: https://markets.newyorkfed.org/api/pd/
+    citation: "FRBNY, Primary Dealer Statistics (FR2004)."
+    license: public (User-Agent 必須)
+    caveats:
+      - "catalog は現行 SBN2024 のみ。旧 seriesbreak の 751 keyid は description 欠落。"
+    usage: {A1: aux, A2: core}
+    columns:
+      as_of_date: 報告対象日（通常水曜）
+      keyid: "シリーズ ID（PDPOS*=net position, PDTRAN*=取引高, PDFTR*=repo, PDFTD*=fails）"
+      value_millions: 金額（百万ドル, ポジション系は long-short）
+      seriesbreak: taxonomy バージョン（catalog/asofs）
+      description: シリーズ説明（catalog）
+    members_note: "timeseries=本体(long), catalog=keyid説明, asofs=日付→seriesbreak。3 テーブルで構成。"
+
+  - key: cftc_tff
+    title: CFTC Traders in Financial Futures (TFF)
+    category: Dealer
+    provider: U.S. CFTC
+    loader: fi_research.data.cftc_tff.load_all
+    files: ["cftc_tff_*.parquet"]
+    frequency: 週次
+    upstream_url: https://www.cftc.gov/files/dea/history/
+    citation: "CFTC, Commitments of Traders — Traders in Financial Futures."
+    license: public
+    usage: {A1: aux, A2: aux}
+    columns:
+      market: 市場名（例 10-YEAR U.S. TREASURY NOTES）
+      report_date: 報告対象日（火曜）
+      "Dealer_Positions_{Long,Short,Spread}_All": ディーラー建玉
+      "Asset_Mgr_Positions_*": アセットマネージャー（real money）
+      "Lev_Money_Positions_*": レバレッジマネー（ヘッジファンド）
+      "Other_Rept_*, NonRept_*": その他 / 非報告
+      Open_Interest_All: 総建玉
+    members_note: "年次 XLS shard（2010-）。cftc_tff.parquet は全結合済。5 区分でポジション公開。"
+
+  # ---- Fundamentals / identifiers -------------------------------------------
+  - key: edgar
+    title: SEC EDGAR Financial Statement Data Sets
+    category: Fundamentals
+    provider: SEC DERA
+    loader: fi_research.data.edgar.load_concat
+    files: ["edgar/*.parquet"]
+    representative: "edgar/2025q3_sub.parquet"
+    coverage: false
+    frequency: 四半期
+    upstream_url: https://www.sec.gov/dera/data/financial-statement-data-sets
+    citation: "U.S. SEC, Financial Statement Data Sets."
+    license: public (User-Agent 必須)
+    caveats:
+      - "num.txt は 100MB+/quarter。69 quarters 全結合は数 GB。必要四半期だけ filter 推奨。"
+    usage: {A1: aux, A2: core}
+    columns:
+      adsh: accession number（filing 一意 ID, num/tag と join）
+      cik: 企業 CIK（sec_tickers と join）
+      name: 企業名
+      sic: SIC code（業種, 6000-6999=金融）
+      form: "10-K / 10-Q / 8-K 等"
+      period: 報告対象期間末日
+      "fy, fp": 会計年度 / 期
+      filed: SEC 提出日
+      tag: "タグ名（num テーブル: Revenues, Assets, LongTermDebt 等）"
+      ddate: データ期間末日（num）
+      qtrs: 期間長（0=期末ストック, 1/4=四半期/年フロー）
+      value: 数値（num）
+    members_note: "69 四半期 × {sub, num, tag} の 3 テーブル。sub=filing メタ, num=XBRL 数値ファクト, tag=タグ辞書。"
+    relations:
+      - {to: sec_tickers, from: cik, on: cik, kind: entity-bridge}
+
+  - key: sec_tickers
+    title: SEC Company Tickers（CIK ↔ ticker）
+    category: Fundamentals
+    provider: SEC
+    loader: fi_research.data.sec_tickers.load_tickers
+    files: ["sec_tickers.parquet"]
+    frequency: 随時
+    upstream_url: https://www.sec.gov/files/company_tickers.json
+    citation: "U.S. SEC."
+    license: public (User-Agent 必須)
+    usage: {A1: aux, A2: core}
+    columns:
+      cik: SEC CIK（EDGAR sub.cik と共通キー）
+      ticker: 米国ティッカー（大文字）
+      name: 企業名
+    relations:
+      - {to: edgar, from: cik, on: cik, kind: entity-bridge}
+      - {to: openfigi_mapping, from: ticker, on: ticker, kind: entity-bridge}
+
+  - key: openfigi_mapping
+    title: OpenFIGI Mapping（ticker → FIGI）
+    category: Fundamentals
+    provider: OpenFIGI (Bloomberg)
+    loader: fi_research.data.openfigi.load_mapping
+    files: ["openfigi_mapping.parquet"]
+    frequency: 随時
+    upstream_url: https://api.openfigi.com/v3/mapping
+    citation: "OpenFIGI (Bloomberg L.P.), Open Symbology Mapping API v3."
+    license: public (無料 key で rate-limit 緩和)
+    caveats:
+      - "Mapping endpoint は ISIN を返さない（仕様）。社債データと繋ぐには別経路（WRDS / search API）が必要。"
+    usage: {A1: edge, A2: core}
+    columns:
+      ticker: 入力ティッカー（sec_tickers と join）
+      figi: FIGI（個別 share class）
+      composite_figi: 取引所横断 composite FIGI
+      share_class_figi: share class identifier
+      name: 発行体名
+      exch_code: 取引所コード
+      "security_type, security_type_2": 証券種別
+      market_sector: "Equity / Govt / Corp 等"
+      isin: ISIN（仕様上ほぼ空）
+      warning: 一致が返らなかった理由
+    relations:
+      - {to: sec_tickers, from: ticker, on: ticker, kind: entity-bridge}
+
+  # ---- Bond factors ---------------------------------------------------------
+  - key: robeco_credit_factors
+    title: Robeco 社債ファクターリターン（IG + HY）
+    category: BondFactor
+    provider: Robeco
+    loader: fi_research.data.robeco.load_robeco_credit_factors
+    files: ["robeco_credit_factors_IG.parquet", "robeco_credit_factors_HY.parquet"]
+    frequency: 月次
+    upstream_url: https://www.robeco.com/
+    citation: "Houweling & van Zundert (2017), FAJ 73(2):100-115."
+    license: "再配布禁止。学術利用・論文引用のみ可。raw XLSX を共有しない。"
+    caveats:
+      - "duration-matched Treasury 控除済の超過リターン。クレジットβを含むため vol は論文比で高め。"
+    usage: {A1: aux, A2: core}
+    columns:
+      date: 月末日
+      Size: サイズファクター超過リターン（decimal, 0.001=10bp）
+      LowRisk: 低リスク（low duration × low spread）
+      Value: バリュー（spread per fundamental）
+      Momentum: モメンタム（過去 6 ヶ月リターン）
+      MultiFactor: 4 ファクター等重み平均
+    members_note: "IG / HY の 2 シート（各 384 ヶ月, 1994-2025）。A2 post-BBW の de-facto 公開ベンチマーク。"
+
+  # ---- International --------------------------------------------------------
+  - key: mof_japan_jgb
+    title: 財務省 JGB 利回り（日本国債）
+    category: International
+    provider: 財務省 (MoF Japan)
+    loader: fi_research.data.mof_japan.load_jgb_yields
+    files: ["jgb_yields.parquet"]
+    frequency: 営業日次
+    upstream_url: https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv
+    citation: "Ministry of Finance Japan, JGB Interest Rate."
+    license: public
+    usage: {A1: edge, A2: core}
+    columns:
+      date: 観測日
+      "<maturity>": 各満期(1Y-40Y)の利付債利回り（zero ではない, 年率%）
+    members_note: "A2『日本適用が新規性』の核データ（16 満期, 1974-）。"
+
+  - key: jsda_monthend
+    title: 日証協 公社債店頭売買参考統計値（月末スナップショット）
+    category: International
+    provider: 日本証券業協会
+    loader: fi_research.data.jsda.load_monthend
+    files: ["jsda_monthend_*.parquet"]
+    frequency: 月末日次（日次原データを月末抽出）
+    upstream_url: https://market.jsda.or.jp/shijyo/saiken/baibai/baisanchi/files/{YYYY}/S{YYMMDD}.csv
+    citation: "日本証券業協会 (JSDA), 公社債店頭売買参考統計値。"
+    license: public（再配布は出典明記要）
+    caveats:
+      - "CSV は cp932 (Shift-JIS) エンコーディング、ヘッダー無し 29 列。"
+      - "API 無し、daily CSV を直接スクレイピング。サーバ rate-limit (3+ sec sleep 必要)。"
+      - "S{YYMMDD}.csv 形式の URL は ~2019 年以降確認、それ以前は別形式の可能性（archive ページ参照）。"
+      - "個別社債識別子 (col `code`) は 9 桁、ISIN/CUSIP 互換ではない JSDA 独自コード。"
+    usage: {A1: edge, A2: core}
+    relations:
+      - to: mof_japan_jgb
+        kind: shared-date
+        from: date
+        on: date
+      - to: jsda_matrix_monthend
+        kind: shared-date
+        from: date
+        on: date
+    columns:
+      date: 観測日
+      issue_type: "銘柄種別（01-99 コード, 02-04=国債, 13=事業債/社債, 12=金融債, 15=転換社債, 17=円建外債 等）"
+      code: 銘柄コード（JSDA 独自 9 桁）
+      name: 銘柄名（cp932 decode 済 UTF-8）
+      due_date: 償還期日
+      coupon: 利率（%）
+      "avg_compound_yield, avg_simple_yield, avg_price, avg_price_change": 平均値（複利/単利/単価/前日比）
+      "high_*, low_*, median_*": 最高値・最低値・中央値の各指標
+      n_reporters: 報告社数
+      invalid_flag: チェックフラグ
+    members_note: "A2 横断面アルファ検定用の TRACE 等価データ（~12,000 銘柄 × 月末）。"
+
+  - key: jsda_matrix_monthend
+    title: 日証協 格付マトリクス表（月末スナップショット）
+    category: International
+    provider: 日本証券業協会
+    loader: "fi_research.data.jsda.load_monthend(kind='R')"
+    files: ["jsda_matrix_monthend_*.parquet"]
+    frequency: 月末日次
+    upstream_url: https://market.jsda.or.jp/shijyo/saiken/baibai/baisanchi/files/{YYYY}/R{YYMMDD}.csv
+    citation: "日本証券業協会 (JSDA), 格付マトリクス表。"
+    license: public（再配布は出典明記要）
+    caveats:
+      - "格付 × 残存期間バケットの代表複利利回り集約表。1 月末あたり 80 行（rating agency × maturity bucket）。"
+      - "CSV は cp932 (Shift-JIS) エンコーディング、ヘッダー無し 39 列。loader が long format に整形。"
+      - "Moody's は小文字格付 (Aaa, Aa, A, Baa, Ba) を返す。他社 (R&I, JCR, S&P) は大文字 (AAA, AA, A, BBB, BB, B)。"
+    usage: {A1: edge, A2: aux}
+    relations:
+      - to: jsda_monthend
+        kind: shared-date
+        from: date
+        on: date
+    columns:
+      date: 観測日
+      rating_agency_code: "格付機関コード (1=R&I, 3=JCR, 4=Moody's, 5=S&P)"
+      rating_agency: 格付機関名 (cp932 → UTF-8 decode 済)
+      maturity_year: 残存期間バケット (1-20 年)
+      rating: 格付ラベル (AAA/AA/A/BBB/BB/B または Moody's の Aaa/Aa/A/Baa/Ba)
+      mean_yield: 代表複利利回り 平均（%）
+      std_yield: 同 標準偏差
+      n_bonds: バケット内銘柄数
+      face_value_oku: バケット内総額面（億円）
+    members_note: "S-file の格付別ベンチマーク曲線として併用（個別社債リターン分解 / α テストの discount curve）。"
+
+  - key: ecb
+    title: ECB ユーロ圏イールドカーブ + マクロ
+    category: International
+    provider: ECB
+    loader: fi_research.data.ecb.fetch_ecb_yield_curve
+    files: ["ecb_euro_aaa_yields.parquet", "ecb_euro_macro.parquet"]
+    frequency: 営業日次/月次
+    upstream_url: https://data-api.ecb.europa.eu/service/data/
+    citation: "European Central Bank, Statistical Data Warehouse."
+    license: public
+    usage: {A1: edge, A2: aux}
+    members_note: "AAA ユーロ政府債 zero curve（11 満期, 2004-）+ HICP/UR/IndPro。章7 cross-country。"
+
+  - key: oecd_bond_yields
+    title: OECD 10y 国債利回り（クロスカントリー）
+    category: International
+    provider: OECD (FRED 経由)
+    loader: fi_research.data.oecd_bond_yields.load_oecd_bond_yields
+    files: ["oecd_bond_yields_10y.parquet", "fred_IRLTLT01*.parquet"]
+    frequency: 月次
+    upstream_url: https://fred.stlouisfed.org/
+    citation: "OECD Main Economic Indicators via FRED (IRLTLT01*)."
+    license: public
+    usage: {A1: edge, A2: aux}
+    members_note: "15 ヶ国の 10y 利回り（USA/JPN/DEU/GBR/FRA/ITA/ESP/CAN/AUS/KOR/EZ/CHE/SWE/NOR/NLD）。fred_IRLTLT01*=国別生系列。"
+
+  # ---- additional macro-finance series (cross-cutting) ----------------------
+  - key: acm_term_premium
+    title: ACM Term Premium（Adrian-Crump-Moench 2013）
+    category: Rates
+    provider: NY Fed
+    loader: fi_research.data.acm_term_premium.load_acm
+    files: ["acm_term_premium.parquet"]
+    frequency: 営業日次
+    upstream_url: https://www.newyorkfed.org/research/data_indicators/term-premia-tabs
+    citation: "Adrian, Crump & Moench (2013), JFE 110(1)."
+    license: public
+    usage: {A1: aux, A2: edge}
+    columns:
+      date: 観測日
+      "ACMY{01..10}": モデル zero yield（満期 1-10y）
+      "ACMTP{01..10}": term premium（満期 1-10y）
+      "ACMRNY{01..10}": risk-neutral yield
+
+  - key: liu_wu
+    title: Liu-Wu (2021) Treasury イールドカーブ
+    category: Rates
+    provider: Cynthia Wu (著者公開)
+    loader: fi_research.data.liu_wu.load_liu_wu
+    files: ["liu_wu_monthly.parquet"]
+    frequency: 月次
+    upstream_url: https://sites.google.com/view/jingcynthiawu/yield-data
+    citation: "Liu & Wu (2021), JFE 142(3)."
+    license: public
+    usage: {A1: aux, A2: edge}
+    members_note: "1m-360m の 360 満期 zero（連続複利, 年率%）。GSW 代替 / Fama-Bliss 風 CP factor 再現用。"
+
+  - key: hkm_intermediary
+    title: He-Kelly-Manela 仲介資本ファクター
+    category: Dealer
+    provider: Zhiguo He (著者公開)
+    loader: fi_research.data.hkm_intermediary.load_hkm
+    files: ["hkm_intermediary_*.parquet"]
+    frequency: 月次/四半期/日次
+    upstream_url: https://zhiguohe.net/data-and-empirical-patterns/
+    citation: "He, Kelly & Manela (2017), JFE 126(1)."
+    license: public
+    usage: {A1: aux, A2: aux}
+    columns:
+      date: 観測日
+      intermediary_capital_ratio: 仲介資本比率
+      intermediary_capital_risk_factor: 資本リスクファクター
+      intermediary_value_weighted_investment_return: VW 投資リターン
+      intermediary_leverage_ratio_squared: レバレッジ比率の二乗
+    members_note: "monthly / quarterly / daily。Fama-MacBeth の標準コントロール。NY Fed PD と接続。"
+
+  - key: jln_uncertainty
+    title: JLN マクロ/金融/実体 不確実性指数
+    category: Macro
+    provider: Sydney Ludvigson (著者公開)
+    loader: fi_research.data.jln_uncertainty.load_jln
+    files: ["jln_macro_uncertainty.parquet", "jln_financial_uncertainty.parquet", "jln_real_uncertainty.parquet"]
+    frequency: 月次
+    upstream_url: https://www.sydneyludvigson.com/data-and-appendixes
+    citation: "Jurado, Ludvigson & Ng (2015), AER 105(3)."
+    license: public
+    usage: {A1: aux, A2: edge}
+    members_note: "macro / financial / real × 3 horizon (h=1,3,12), 1960-。uncertainty channel の robustness。"
+
+  - key: epu
+    title: EPU 経済政策不確実性指数（Baker-Bloom-Davis）
+    category: Macro
+    provider: policyuncertainty.com
+    loader: fi_research.data.epu.load_epu_us
+    files: ["epu_us_monthly.parquet", "epu_all_countries_monthly.parquet"]
+    frequency: 月次
+    upstream_url: https://www.policyuncertainty.com/
+    citation: "Baker, Bloom & Davis (2016), QJE 131(4)."
+    license: public
+    usage: {A1: edge, A2: edge}
+    members_note: "US news-based(1900-) + All Country(26ヶ国, 日本含む, 1985-)。章7/8 のマクロコンテクスト。"

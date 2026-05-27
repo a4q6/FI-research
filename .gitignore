@@ -1,3 +1,10 @@
+*.parquet
+*.csv
+*.png
+*.pdf
+data/
+!data/*/*.gitkeep*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -216,3 +223,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific
+# Raw and processed data are NOT checked in (re-fetchable from upstream).
+# Some processed parquet files run into GBs (EDGAR num.txt is ~128MB/quarter
+# in parquet form). `.gitkeep` markers must stay tracked.
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+projects/**/data/raw/
+projects/**/data/processed/
+*.sqlite
+*.sqlite-journal
+
+# Notebook outputs (large; commit a cleared copy via nbstripout if needed)
+# .ipynb_checkpoints already covered above.
+

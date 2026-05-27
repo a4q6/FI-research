@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FI-research 先行研究 読書ガイド</title>
+<style>
+  :root{
+    --ink:#16202e;--muted:#5b6675;--line:#e2e7ef;--bg:#f5f7fb;--card:#fff;
+    --a2:#e11d48;--a1:#0ea5e9;--gold:#b45309;
+    --must:#dc2626;--should:#d97706;--skim:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.7;font-size:15px}
+  a{color:#1d4ed8;text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px 70px}
+  header.hero{background:linear-gradient(135deg,#7f1d3a 0%,#0f2c5c 100%);color:#fff;
+    padding:calc(38px + env(safe-area-inset-top)) 22px 32px;margin-bottom:6px}
+  header.hero .in{max-width:1060px;margin:0 auto}
+  header.hero h1{margin:0 0 6px;font-size:27px}
+  header.hero p{margin:0;opacity:.9;font-size:14.5px}
+  h2{font-size:21px;margin:42px 0 6px;padding-bottom:7px;border-bottom:2px solid var(--line)}
+  h2 .n{color:var(--muted);margin-right:9px}
+  h3{font-size:16px;margin:22px 0 8px}
+  p.lead{color:var(--muted);max-width:840px;margin:8px 0 16px}
+  .toc{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+  .toc a{background:#fff;border:1px solid var(--line);border-radius:18px;padding:5px 13px;font-size:13px;color:var(--ink)}
+  .toc a:hover{background:var(--a2);color:#fff;border-color:var(--a2);text-decoration:none}
+
+  /* priority pills */
+  .pri{font-size:11px;font-weight:800;border-radius:5px;padding:1px 7px;color:#fff;white-space:nowrap}
+  .pri.must{background:var(--must)}.pri.should{background:var(--should)}.pri.skim{background:var(--skim)}
+  .tag{font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px}
+  .tag.a2{background:#ffe4e9;color:#be123c}.tag.a1{background:#e0f2fe;color:#0369a1}
+  .tag.x{background:#f1f5f9;color:#475569}
+
+  /* wave roadmap */
+  .wave{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:4px 18px 14px;margin:14px 0;
+    border-left:5px solid var(--c,#888)}
+  .wave h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .wave .badge{background:var(--c,#888);color:#fff;border-radius:8px;padding:3px 11px;font-size:13px;font-weight:700}
+  .wave .why{color:var(--muted);font-size:13.5px;margin:2px 0 10px}
+  .item{display:flex;gap:10px;align-items:baseline;padding:7px 0;border-top:1px dashed var(--line)}
+  .item:first-of-type{border-top:none}
+  .item .ord{font-weight:800;color:var(--muted);min-width:20px;font-variant-numeric:tabular-nums}
+  .item .body{flex:1}
+  .item .ttl{font-weight:600}
+  .item .sub{font-size:12.5px;color:var(--muted)}
+  .item .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px}
+  .pg{font-size:11px;color:var(--muted);background:#f1f5f9;border-radius:4px;padding:1px 6px}
+  .noera{color:#b91c1c;font-weight:700;font-size:11px}
+
+  /* genealogy svg */
+  .mapbox{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:10px;overflow-x:auto}
+  .mapbox svg{display:block;min-width:780px;width:100%;height:auto}
+  .leg{display:flex;flex-wrap:wrap;gap:16px;margin:12px 2px 0;font-size:12.5px;color:var(--muted)}
+  .leg .ls{display:inline-block;width:26px;height:0;vertical-align:middle;margin-right:5px}
+
+  /* category cards */
+  .cat{margin:8px 0 22px}
+  .cat .ch{font-size:15px;font-weight:700;padding-left:10px;border-left:4px solid var(--c,#888);margin:18px 0 8px}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-bottom:9px}
+  .pcard .r1{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .pcard .cite{font-weight:600}
+  .pcard .out{font-size:12px;color:var(--muted)}
+  .pcard .sum{font-size:13.5px;margin:5px 0 0}
+  .pcard .lk{margin-left:auto;font-size:12px;white-space:nowrap}
+  .pcard .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .nopdf{font-size:11px;color:#b91c1c;background:#fee2e2;border-radius:4px;padding:1px 6px}
+
+  .short{background:#fff7f8;border:1px solid #fbd5dd;border-left:5px solid var(--a2);border-radius:12px;padding:16px 20px;margin:14px 0}
+  .short ol{margin:8px 0 0;padding-left:22px}.short li{margin:6px 0}
+  .footer{color:var(--muted);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:12px}
+  @media (max-width:600px){.pcard .lk{margin-left:0;width:100%}}
+  @media print{body{background:#fff;font-size:11px}.toc{display:none}.wave,.pcard,.mapbox,.short{break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="in">
+  <h1>先行研究 読書ガイド ── 系統 × 系譜 × 読む順序</h1>
+  <p>主テーマ <b>A2（ポスト BBW 社債ファクター）</b>を最短距離で固めるための読書ロードマップ。A1（SHAP×債券）は保留中のため方法論として後段に配置。<b>論文リンクはネット上の無料版（working paper 等）</b>。サーバー外でも開けます。最終更新 2026-05-26</p>
+</div></header>
+
+<div class="wrap">
+  <p class="lead">
+    社会人で読む時間が限られる前提で、「<b>何を・どの順で</b>」読むかに振り切ったガイド。各論文に
+    <span class="pri must">必読</span><span class="pri should">重要</span><span class="pri skim">流し読み</span> の優先度、
+    <span class="tag a2">A2</span><span class="tag a1">A1</span> の紐付け、ページ数（読む労力の目安）を付与。
+    まず <b>① 読む順序（6 波）</b> を上から消化 → 迷ったら <b>② 系譜マップ</b> で位置を確認 → <b>③ 系統別カタログ</b> で各論文の要旨を引く、という使い方。
+  </p>
+
+  <nav class="toc">
+    <a href="#order">① 読む順序（6 波）</a>
+    <a href="#five">最初の 5 本</a>
+    <a href="#tree">② 系譜マップ</a>
+    <a href="#cat">③ 系統別カタログ</a>
+  </nav>
+
+  <!-- ===== shortlist ===== -->
+  <div class="short" id="five">
+    <h3 style="margin:0">⏱ 時間が無い人へ ── まず読む 5 本</h3>
+    <ol>
+      <li><b>Houweling & van Zundert (2017)</b> — 自分が使っている Robeco データの原典。社債 4 ファクターの全体像。<span class="pg">40p</span></li>
+      <li><b>Bai-Bali-Wen (2019, 撤回)</b> + <b>van Binsbergen & Schwert (2021)</b> — A2 の出発点（撤回された主張）と、なぜ崩れたか。セットで。<span class="pg">24p+39p</span></li>
+      <li><b>Feng-Giglio-Xiu (2020)</b> — A2 の主手法 double-selection LASSO。手法章の背骨。<span class="pg">44p</span></li>
+      <li><b>Gilchrist & Zakrajšek (2012)</b> — EBP。クレジット×マクロの共通言語、自分の再現済み。<span class="pg">37p</span></li>
+      <li><b>Israel-Palhares-Richardson (2018)</b> — HvZ と並ぶ社債ファクターの実証、候補ファクター集合の根拠。<span class="pg">30p</span></li>
+    </ol>
+  </div>
+
+  <!-- ===== reading order ===== -->
+  <h2 id="order"><span class="n">①</span>読む順序 ── 6 波で消化する</h2>
+  <p class="lead">上の波から順に。各波は「前の波を前提」に積み上がる。<b>必読</b>だけ追えば A2 の骨格は通る。<b>流し読み</b>は索引的に必要時だけでよい。</p>
+
+  <!-- Wave 1 -->
+  <div class="wave" style="--c:var(--a2)">
+    <h3><span class="badge">第 1 波</span> A2 の臨界経路 ── テーマの定義そのもの</h3>
+    <p class="why">「社債にファクターはあるのか／BBW はなぜ撤回されたのか／自分は何で再評価するのか」を確定させる中核。ここを読まずに先へ進まない。</p>
+    <div class="item"><span class="ord">1</span><div class="body"><span class="ttl">Houweling & van Zundert (2017)</span> <span class="sub">Factor Investing in the Corporate Bond Market</span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="pg">40p</span><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2516322" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">2</span><div class="body"><span class="ttl">Bai, Bali & Wen (2019)</span> <span class="sub">Common risk factors in the cross-section of corporate bond returns　<span class="noera">⚠ 2023 撤回</span></span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="pg">24p</span><a href="https://faculty.georgetown.edu/qw50/RiskFactor.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">3</span><div class="body"><span class="ttl">van Binsbergen & Schwert (2021)</span> <span class="sub">撤回の引き金になった頑健性批判</span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="pg">39p</span><a href="https://rodneywhitecenter.wharton.upenn.edu/wp-content/uploads/2021/10/BinsbergenSchwert_2021_WP-Duration-based-valuation-of-corporate-bonds.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">4</span><div class="body"><span class="ttl">Feng, Giglio & Xiu (2020)</span> <span class="sub">Taming the Factor Zoo（double-selection LASSO＝A2 の主手法）</span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="pg">44p</span><a href="https://dachxiu.chicagobooth.edu/download/ZOO.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+  </div>
+
+  <!-- Wave 2 -->
+  <div class="wave" style="--c:#be185d">
+    <h3><span class="badge">第 2 波</span> A2 の手法・ファクター文脈を固める</h3>
+    <p class="why">候補ファクター集合の作り方、次元削減、再現性の作法。第 1 波の手法を肉付けする。</p>
+    <div class="item"><span class="ord">5</span><div class="body"><span class="ttl">Israel, Palhares & Richardson (2018)</span> <span class="sub">Common factors in corporate bond returns（AQR）</span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="pg">30p</span><a href="https://www.aqr.com/-/media/AQR/Documents/Journal-Articles/Common-Factors-in-Corporate-Bond-Returns.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">6</span><div class="body"><span class="ttl">Kozak, Nagel & Santosh (2020)</span> <span class="sub">Shrinking the Cross-Section（SDF アプローチ・FGX の補完）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a2">A2</span><span class="pg">58p</span><a href="https://www.nber.org/system/files/working_papers/w24070/w24070.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">7</span><div class="body"><span class="ttl">Jensen, Kelly & Pedersen (2023)</span> <span class="sub">Is There a Replication Crisis in Finance?（Global Factor Data・再現性の枠組み）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a2">A2</span><span class="pg">54p</span><a href="https://www.nber.org/system/files/working_papers/w28432/w28432.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">8</span><div class="body"><span class="ttl">Asvanunt & Richardson (2017)</span> <span class="sub">The Credit Risk Premium（EBP とファクターの橋渡し）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a2">A2</span><span class="pg">20p</span><a href="https://www.aqr.com/-/media/AQR/Documents/Journal-Articles/JFI_Winter_2017_AQR_The-Credit-Risk-Premium.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+  </div>
+
+  <!-- Wave 3 -->
+  <div class="wave" style="--c:var(--gold)">
+    <h3><span class="badge">第 3 波</span> 株式ファクターの源流（背景・必要時に参照）</h3>
+    <p class="why">社債ファクターは株式の概念輸入。定義の出典として押さえる。既知なら流し読みで可。</p>
+    <div class="item"><span class="ord">9</span><div class="body"><span class="ttl">Fama & French (1993)</span> <span class="sub">3 ファクター（Mkt/SMB/HML）の原典</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">基礎</span><span class="pg">54p</span><a href="https://www.bauer.uh.edu/rsusmel/phd/Fama-French_JFE93.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">10</span><div class="body"><span class="ttl">Carhart (1997)</span> <span class="sub">Momentum を 4 つ目に（HvZ の Momentum の起源）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">基礎</span><span class="pg">27p</span><a href="https://finance.martinsewell.com/fund-performance/Carhart1997.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">11</span><div class="body"><span class="ttl">Fama & French (2015)</span> <span class="sub">5 ファクター（RMW/CMA 追加・Quality/Investment）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">基礎</span><span class="pg">22p</span><a href="https://tevgeniou.github.io/EquityRiskFactors/bibliography/FiveFactor.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">12</span><div class="body"><span class="ttl">Frazzini & Pedersen (2014)</span> <span class="sub">Betting Against Beta（Low-Risk ファクターの理論的起源）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">基礎</span><span class="pg">71p</span><a href="https://www.nber.org/system/files/working_papers/w16601/w16601.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+  </div>
+
+  <!-- Wave 4 -->
+  <div class="wave" style="--c:#059669">
+    <h3><span class="badge">第 4 波</span> クレジット×マクロ×仲介機関（コントロール変数の論拠）</h3>
+    <p class="why">横断回帰のコントロール（systemic credit risk・流動性・仲介資本）の出典。自分の再現・派生分析と直結。</p>
+    <div class="item"><span class="ord">13</span><div class="body"><span class="ttl">Gilchrist & Zakrajšek (2012)</span> <span class="sub">EBP（クレジットスプレッド分解・再現済）</span>
+      <div class="meta"><span class="pri must">必読</span><span class="tag a2">A2</span><span class="tag a1">A1</span><span class="pg">37p</span><a href="https://www.nber.org/system/files/working_papers/w17021/w17021.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">14</span><div class="body"><span class="ttl">Dick-Nielsen, Feldhütter & Lando (2012)</span> <span class="sub">社債流動性プレミアム（BBW 頑健性問題の核）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a2">A2</span><span class="pg">22p</span><a href="https://www.feldhutter.com/BondLiqFinalPaper.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">15</span><div class="body"><span class="ttl">He, Kelly & Manela (2017)</span> <span class="sub">Intermediary Asset Pricing（ディーラー資本・手元 NY Fed PD と接続）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a2">A2</span><span class="pg">69p</span><a href="https://www.nber.org/system/files/working_papers/w21920/w21920.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">16</span><div class="body"><span class="ttl">Favara et al. (2016)</span> <span class="sub">EBP 更新版 FEDS Note（自分が使うデータの出所）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a2">A2</span><span class="pg">2p</span><a href="https://www.federalreserve.gov/econres/notes/feds-notes/updating-the-recession-risk-and-the-excess-bond-premium-20161006.html" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">17</span><div class="body"><span class="ttl">Hanson, Kashyap & Stein (2011)</span> <span class="sub">マクロプルーデンス（規制背景）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">背景</span><span class="pg">40p</span><a href="https://web.williams.edu/Economics/seminars/steinJEP.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+  </div>
+
+  <!-- Wave 5 -->
+  <div class="wave" style="--c:var(--a1)">
+    <h3><span class="badge">第 5 波</span> 方法論の広がり・金利/政策（A1 保留章 & 補論）</h3>
+    <p class="why">A1（SHAP×ML）と金利・金融政策まわり。A2 本論には必須でないが、補章・将来再開・国債側の議論で効く。</p>
+    <div class="item"><span class="ord">18</span><div class="body"><span class="ttl">Gu, Kelly & Xiu (2020)</span> <span class="sub">Empirical Asset Pricing via ML（A1 の方法論基盤）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a1">A1</span><span class="pg">80p</span><a href="https://www.nber.org/system/files/working_papers/w25398/w25398.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">19</span><div class="body"><span class="ttl">Bianchi, Büchner & Tamoni (2021)</span> <span class="sub">Bond Risk Premiums with ML（債券版 ML 先行研究）</span>
+      <div class="meta"><span class="pri should">重要</span><span class="tag a1">A1</span><span class="pg">87p</span><a href="https://wrap.warwick.ac.uk/id/eprint/151797/1/WRAP-bond-risk-premiums-machine-learning-B%C3%BCchner-2021.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">20</span><div class="body"><span class="ttl">Bryzgalova, Pelger & Zhu (2023)</span> <span class="sub">Forest Through the Trees（決定木による資産価格付け）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">72p</span><a href="https://fass.nus.edu.sg/ecs/wp-content/uploads/sites/4/2020/09/Forest-Through-the-Trees-Bryzgalova-Pelger-and-Zhu.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">21</span><div class="body"><span class="ttl">Gürkaynak, Sack & Wright (2007)</span> <span class="sub">米国債ゼロカーブ（GSW データの原典・再現済）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">42p</span><a href="https://www.federalreserve.gov/pubs/feds/2006/200628/200628pap.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">22</span><div class="body"><span class="ttl">Bauer & Swanson (2023)</span> <span class="sub">MP サプライズの直交化（再現済・MPS データの出所）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">67p</span><a href="https://www.nber.org/system/files/working_papers/w29939/w29939.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">23</span><div class="body"><span class="ttl">Nakamura & Steinsson (2018)</span> <span class="sub">高頻度識別・情報効果（BS の対比対象）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">74p</span><a href="https://www.nber.org/system/files/working_papers/w19260/w19260.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">24</span><div class="body"><span class="ttl">Gürkaynak, Sack & Wright (2010)</span> <span class="sub">TIPS カーブ（実質金利・breakeven）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">42p</span><a href="https://www.federalreserve.gov/pubs/feds/2008/200805/200805pap.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">25</span><div class="body"><span class="ttl">Monin (2019)</span> <span class="sub">OFR Financial Stress Index（ストレス指数の構成）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="pg">41p</span><a href="https://www.financialresearch.gov/working-papers/files/OFRwp-17-04_The-OFR-Financial-Stress-Index.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+  </div>
+
+  <!-- Wave 6 -->
+  <div class="wave" style="--c:var(--skim)">
+    <h3><span class="badge">第 6 波</span> 周辺・他資産（必要が出たら）</h3>
+    <p class="why">クロスアセット類似ケース。直接は使わないが、キャリー/RP 構造や CIP×クレジットの発想源。</p>
+    <div class="item"><span class="ord">26</span><div class="body"><span class="ttl">Lustig, Roussanov & Verdelhan (2011)</span> <span class="sub">通貨キャリーの共通リスクファクター（前職 FX との接点）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">周辺</span><span class="pg">63p</span><a href="https://www.nber.org/system/files/working_papers/w14082/w14082.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">27</span><div class="body"><span class="ttl">Liao (2020)</span> <span class="sub">Credit migration × CIP デビエーション</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag x">周辺</span><span class="pg">56p</span><a href="https://www.federalreserve.gov/econres/ifdp/files/ifdp1255.pdf" target="_blank" rel="noopener">PDF</a></div></div></div>
+    <div class="item"><span class="ord">—</span><div class="body"><span class="ttl">Campisi (2000)</span> <span class="sub">Primer on Fixed Income Performance Attribution（A1 の線形ベンチマーク）</span>
+      <div class="meta"><span class="pri skim">流し読み</span><span class="tag a1">A1</span><span class="nopdf">PDF 無し（有料誌）</span></div></div></div>
+  </div>
+
+  <!-- ===== genealogy ===== -->
+  <h2 id="tree"><span class="n">②</span>系譜マップ ── 知のつながり</h2>
+  <p class="lead">縦の流れ＝知的系譜（影響の継承）。左の株式ファクター源流が社債へ輸入され、BBW の撤回を経て A2（再評価）へ。右の方法論（factor zoo / 仲介機関）が A2 に合流する。</p>
+  <div class="mapbox">
+    <svg viewBox="0 0 880 620" role="img" aria-label="系譜マップ">
+      <defs>
+        <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker>
+        <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#dc2626"/></marker>
+      </defs>
+      <!-- edges -->
+      <g stroke="#475569" stroke-width="1.7" fill="none" marker-end="url(#a)">
+        <path d="M150,108 L150,150"/>            <!-- FF93->Carhart -->
+        <path d="M150,206 L150,248"/>            <!-- Carhart->FF15 -->
+        <path d="M196,180 C320,200 360,250 396,286"/> <!-- factor base -> HvZ/IPR -->
+        <path d="M150,304 C150,360 300,360 396,318"/>  <!-- FF15 -> CB factors -->
+        <path d="M474,318 L474,366"/>            <!-- CB factors -> BBW -->
+      </g>
+      <!-- critique (red) -->
+      <path d="M620,392 L530,392" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4" fill="none" marker-end="url(#ar)"/>
+      <text x="575" y="384" font-size="10" fill="#b91c1c" text-anchor="middle">撤回</text>
+      <!-- BBW -> A2 -->
+      <path d="M474,420 L474,470" stroke="#475569" stroke-width="1.7" fill="none" marker-end="url(#a)"/>
+      <!-- method tributaries -> A2 -->
+      <g stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#a)">
+        <path d="M730,150 C700,300 600,460 540,492"/>  <!-- FGX -->
+        <path d="M730,214 C710,330 610,470 540,500"/>  <!-- KNS/JKP -->
+      </g>
+      <!-- credit/intermediary feeders -> A2 -->
+      <g stroke="#059669" stroke-width="1.6" stroke-dasharray="2 5" fill="none" marker-end="url(#a)">
+        <path d="M150,470 C200,520 330,520 408,512"/> <!-- GZ/credit -->
+      </g>
+
+      <!-- NODES -->
+      <g font-size="12.5" text-anchor="middle" font-family="inherit">
+        <!-- left spine: equity factor foundations -->
+        <g>
+          <rect x="70" y="70" width="160" height="38" rx="9" fill="#fff8ec" stroke="var(--gold)"/>
+          <text x="150" y="93" font-weight="700">Fama-French (1993)</text>
+          <rect x="70" y="168" width="160" height="38" rx="9" fill="#fff8ec" stroke="var(--gold)"/>
+          <text x="150" y="191" font-weight="700">Carhart (1997)</text>
+          <rect x="70" y="266" width="160" height="38" rx="9" fill="#fff8ec" stroke="var(--gold)"/>
+          <text x="150" y="289" font-weight="700">Fama-French (2015)</text>
+          <text x="150" y="58" font-size="11" fill="var(--gold)" font-weight="700">株式ファクター源流</text>
+        </g>
+        <!-- center: corporate bond factors -->
+        <g>
+          <rect x="386" y="284" width="176" height="40" rx="9" fill="#fff" stroke="var(--a2)"/>
+          <text x="474" y="300" font-weight="700">社債ファクター</text>
+          <text x="474" y="316" font-size="10.5" fill="#64748b">HvZ 2017 / Israel+ 2018</text>
+        </g>
+        <!-- BBW retracted -->
+        <g>
+          <rect x="396" y="366" width="156" height="54" rx="9" fill="#fff" stroke="#dc2626" stroke-dasharray="5 4"/>
+          <text x="474" y="386" font-weight="700">Bai-Bali-Wen (2019)</text>
+          <text x="474" y="402" font-size="10.5" fill="#b91c1c">⚠ 2023 撤回</text>
+          <text x="474" y="415" font-size="10" fill="#64748b">社債 factor model</text>
+        </g>
+        <!-- critique node -->
+        <g>
+          <rect x="620" y="372" width="170" height="40" rx="9" fill="#fff" stroke="#dc2626"/>
+          <text x="705" y="389" font-weight="700" font-size="11.5">van Binsbergen-Schwert</text>
+          <text x="705" y="404" font-size="10" fill="#b91c1c">頑健性批判 (2021)</text>
+        </g>
+        <!-- A2 node -->
+        <g>
+          <rect x="396" y="470" width="176" height="58" rx="13" fill="var(--a2)"/>
+          <text x="484" y="462" font-size="11" fill="var(--a2)" font-weight="700" text-anchor="middle">★ 主テーマ</text>
+          <text x="484" y="494" fill="#fff" font-weight="800" font-size="15">A2</text>
+          <text x="484" y="512" fill="#ffe9ee" font-size="11">ポスト BBW 社債ファクター再評価</text>
+        </g>
+        <!-- right: methodology -->
+        <g>
+          <rect x="660" y="132" width="160" height="38" rx="9" fill="#f5efff" stroke="#7c3aed"/>
+          <text x="740" y="155" font-weight="700" font-size="11.5">Feng-Giglio-Xiu 2020</text>
+          <rect x="660" y="196" width="160" height="38" rx="9" fill="#f5efff" stroke="#7c3aed"/>
+          <text x="740" y="215" font-weight="700" font-size="10.5">Kozak-Nagel-Santosh 2020</text>
+          <text x="740" y="231" font-size="9.5" fill="#7c3aed">/ Jensen-Kelly-Pedersen 2023</text>
+          <text x="740" y="120" font-size="11" fill="#7c3aed" font-weight="700">方法論: Factor Zoo</text>
+        </g>
+        <!-- bottom-left: credit/macro feeders -->
+        <g>
+          <rect x="60" y="452" width="180" height="40" rx="9" fill="#ecfdf3" stroke="#059669"/>
+          <text x="150" y="468" font-weight="700" font-size="11.5">クレジット×マクロ×仲介</text>
+          <text x="150" y="483" font-size="9.5" fill="#059669">GZ12 / DNFL12 / HKM17 / FP14</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="leg">
+    <span><span class="ls" style="border-top:2px solid #475569"></span>知的継承（影響）</span>
+    <span><span class="ls" style="border-top:2px dashed #dc2626"></span>批判・撤回</span>
+    <span><span class="ls" style="border-top:2px dashed #7c3aed"></span>方法論の投入</span>
+    <span><span class="ls" style="border-top:2px dotted #059669"></span>コントロール/文脈の供給</span>
+  </div>
+
+  <!-- ===== category catalogue ===== -->
+  <h2 id="cat"><span class="n">③</span>系統別カタログ ── 要旨と紐付け</h2>
+  <p class="lead">系統ごとに要旨（1–2 行）と A2/A1 での使いどころ。読む順序は ① を、位置づけは ② を参照。リンクはネット上の無料版（別タブで開く）。</p>
+
+  <div class="cat">
+    <div class="ch" style="--c:var(--a2)">A. 社債ファクター（A2 コア）</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Houweling & van Zundert (2017)</span> <span class="out">FAJ 73(2)</span><span class="lk"><span class="pri must">必読</span> <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2516322" target="_blank" rel="noopener">PDF 40p</a></span></div>
+      <p class="sum">米国 IG/HY 社債で Size/Low-Risk/Value/Momentum の 4 ファクターが有意。Robeco 公開データの原典 ＝ 自分の再現基盤。</p>
+      <div class="meta"><span class="tag a2">A2 核</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Israel, Palhares & Richardson (2018)</span> <span class="out">J. Investment Management 16(2)</span><span class="lk"><span class="pri must">必読</span> <a href="https://www.aqr.com/-/media/AQR/Documents/Journal-Articles/Common-Factors-in-Corporate-Bond-Returns.pdf" target="_blank" rel="noopener">PDF 30p</a></span></div>
+      <p class="sum">AQR による社債ファクターの実証。HvZ と並ぶ候補ファクター集合の根拠で、carry/defensive/momentum/value の整理。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Bai, Bali & Wen (2019)</span> <span class="out">JFE 131(3) ⚠ 2023 撤回</span><span class="lk"><span class="pri must">必読</span> <a href="https://faculty.georgetown.edu/qw50/RiskFactor.pdf" target="_blank" rel="noopener">PDF 24p</a></span></div>
+      <p class="sum">社債 4 ファクター（DRF/CRF/LRF）を提唱した代表作。<b>A2 の出発点そのもの</b>。撤回された主張を正確に把握するために読む。</p>
+      <div class="meta"><span class="tag a2">A2 起点</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">van Binsbergen & Schwert (2021)</span> <span class="out">working paper → RFS 2025</span><span class="lk"><span class="pri must">必読</span> <a href="https://rodneywhitecenter.wharton.upenn.edu/wp-content/uploads/2021/10/BinsbergenSchwert_2021_WP-Duration-based-valuation-of-corporate-bonds.pdf" target="_blank" rel="noopener">PDF 39p</a></span></div>
+      <p class="sum">社債リスクプレミアム/デュレーションの再検討。BBW 撤回の論拠となった頑健性批判。「なぜ崩れたか」の核心。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Asvanunt & Richardson (2017)</span> <span class="out">J. Fixed Income 26(3)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.aqr.com/-/media/AQR/Documents/Journal-Articles/JFI_Winter_2017_AQR_The-Credit-Risk-Premium.pdf" target="_blank" rel="noopener">PDF 20p</a></span></div>
+      <p class="sum">クレジットリスクプレミアムの定義と計測。EBP（マクロ）と社債ファクター（横断）を橋渡しする。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+  </div>
+
+  <div class="cat">
+    <div class="ch" style="--c:#7c3aed">B. 方法論 ── Factor Zoo / 次元削減 / 再現性</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Feng, Giglio & Xiu (2020)</span> <span class="out">JF 75(3)</span><span class="lk"><span class="pri must">必読</span> <a href="https://dachxiu.chicagobooth.edu/download/ZOO.pdf" target="_blank" rel="noopener">PDF 44p</a></span></div>
+      <p class="sum">既存ファクター群を統制して新ファクターの寄与を検定する double-selection LASSO。<b>A2 の主手法</b>、社債適用が新規性。</p>
+      <div class="meta"><span class="tag a2">A2 手法</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Kozak, Nagel & Santosh (2020)</span> <span class="out">JFE 135(2)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.nber.org/system/files/working_papers/w24070/w24070.pdf" target="_blank" rel="noopener">PDF 58p</a></span></div>
+      <p class="sum">SDF アプローチでファクター次元を縮小。FGX の補完として pricing kernel 推定に使える。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Jensen, Kelly & Pedersen (2023)</span> <span class="out">JF 78(5)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.nber.org/system/files/working_papers/w28432/w28432.pdf" target="_blank" rel="noopener">PDF 54p</a></span></div>
+      <p class="sum">グローバル factor data による再現性の体系。factor zoo を国横断で検証する作法。A2 の日本拡張の文脈にも。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+  </div>
+
+  <div class="cat">
+    <div class="ch" style="--c:var(--gold)">C. 株式ファクターの源流（基礎・参照）</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Fama & French (1993)</span> <span class="out">JFE 33(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.bauer.uh.edu/rsusmel/phd/Fama-French_JFE93.pdf" target="_blank" rel="noopener">PDF 54p</a></span></div>
+      <p class="sum">市場・SMB・HML の 3 ファクター。すべての factor investing の出発点。社債側の Size/Value の概念輸入元。</p>
+      <div class="meta"><span class="tag x">基礎</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Carhart (1997)</span> <span class="out">JF 52(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://finance.martinsewell.com/fund-performance/Carhart1997.pdf" target="_blank" rel="noopener">PDF 27p</a></span></div>
+      <p class="sum">Momentum を 4 つ目のファクターに。HvZ の社債 Momentum の起源。</p>
+      <div class="meta"><span class="tag x">基礎</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Fama & French (2015)</span> <span class="out">JFE 116(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://tevgeniou.github.io/EquityRiskFactors/bibliography/FiveFactor.pdf" target="_blank" rel="noopener">PDF 22p</a></span></div>
+      <p class="sum">RMW(Profitability)・CMA(Investment) を追加した 5 ファクター。Quality/Defensive の理論的背景。</p>
+      <div class="meta"><span class="tag x">基礎</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Frazzini & Pedersen (2014)</span> <span class="out">JFE 111(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.nber.org/system/files/working_papers/w16601/w16601.pdf" target="_blank" rel="noopener">PDF 71p</a></span></div>
+      <p class="sum">Betting Against Beta。レバレッジ制約から Low-Risk アノマリーを説明。HvZ の Low-Risk の理論的起源。</p>
+      <div class="meta"><span class="tag x">基礎</span></div></div>
+  </div>
+
+  <div class="cat">
+    <div class="ch" style="--c:#059669">D. クレジット × マクロ × 仲介機関</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Gilchrist & Zakrajšek (2012)</span> <span class="out">AER 102(4)</span><span class="lk"><span class="pri must">必読</span> <a href="https://www.nber.org/system/files/working_papers/w17021/w17021.pdf" target="_blank" rel="noopener">PDF 37p</a></span></div>
+      <p class="sum">クレジットスプレッドを予想デフォルト成分と EBP に分解。EBP は景気の先行指標。再現済・横断回帰の主要コントロール。</p>
+      <div class="meta"><span class="tag a2">A2</span><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Dick-Nielsen, Feldhütter & Lando (2012)</span> <span class="out">JFE 103(3)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.feldhutter.com/BondLiqFinalPaper.pdf" target="_blank" rel="noopener">PDF 22p</a></span></div>
+      <p class="sum">TRACE ベースの社債流動性プレミアム計測。BBW 撤回の頑健性問題（流動性調整）に直結。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">He, Kelly & Manela (2017)</span> <span class="out">JFE 126(1)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.nber.org/system/files/working_papers/w21920/w21920.pdf" target="_blank" rel="noopener">PDF 69p</a></span></div>
+      <p class="sum">仲介機関の資本制約による資産価格付け。手元の NY Fed PD / CFTC TFF と結びつくディーラー軸の理論。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Favara, Gilchrist, Lewis & Zakrajšek (2016)</span> <span class="out">FEDS Notes</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.federalreserve.gov/econres/notes/feds-notes/updating-the-recession-risk-and-the-excess-bond-premium-20161006.html" target="_blank" rel="noopener">PDF 2p</a></span></div>
+      <p class="sum">EBP の更新版データ提供。自分がロードしている EBP 系列の出所。</p>
+      <div class="meta"><span class="tag a2">A2</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Hanson, Kashyap & Stein (2011)</span> <span class="out">JEP 25(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://web.williams.edu/Economics/seminars/steinJEP.pdf" target="_blank" rel="noopener">PDF 40p</a></span></div>
+      <p class="sum">マクロプルーデンス規制の枠組み。QE/規制が信用市場に与える構造変化の背景。</p>
+      <div class="meta"><span class="tag x">背景</span></div></div>
+  </div>
+
+  <div class="cat">
+    <div class="ch" style="--c:var(--a1)">E. 機械学習 × 金利 × 金融政策（A1 保留・補論）</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Gu, Kelly & Xiu (2020)</span> <span class="out">RFS 33(5)</span><span class="lk"><span class="pri should">重要</span> <a href="https://www.nber.org/system/files/working_papers/w25398/w25398.pdf" target="_blank" rel="noopener">PDF 80p</a></span></div>
+      <p class="sum">株式リターン予測の ML 手法を体系比較。A1 の方法論基盤（木・NN・正則化の比較設計）。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Bianchi, Büchner & Tamoni (2021)</span> <span class="out">RFS 34(2)</span><span class="lk"><span class="pri should">重要</span> <a href="https://wrap.warwick.ac.uk/id/eprint/151797/1/WRAP-bond-risk-premiums-machine-learning-B%C3%BCchner-2021.pdf" target="_blank" rel="noopener">PDF 87p</a></span></div>
+      <p class="sum">国債リスクプレミアムへの ML 適用。A1 の債券版直接先行研究。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Bryzgalova, Pelger & Zhu (2023)</span> <span class="out">JF</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://fass.nus.edu.sg/ecs/wp-content/uploads/sites/4/2020/09/Forest-Through-the-Trees-Bryzgalova-Pelger-and-Zhu.pdf" target="_blank" rel="noopener">PDF 72p</a></span></div>
+      <p class="sum">決定木でクロスセクションを構築。A1 の対比対象（解釈可能な木 vs SHAP）。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Gürkaynak, Sack & Wright (2007 / 2010)</span> <span class="out">JME 54(8) / AEJ:Macro 2(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.federalreserve.gov/pubs/feds/2006/200628/200628pap.pdf" target="_blank" rel="noopener">PDF 42p</a> · <a href="https://www.federalreserve.gov/pubs/feds/2008/200805/200805pap.pdf" target="_blank" rel="noopener">TIPS 42p</a></span></div>
+      <p class="sum">米国債ゼロカーブ（名目・実質）の構築・公開。手元 GSW データの原典。曲線特徴量の出所。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Bauer & Swanson (2023)</span> <span class="out">NBER Macro Annual 37</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.nber.org/system/files/working_papers/w29939/w29939.pdf" target="_blank" rel="noopener">PDF 67p</a></span></div>
+      <p class="sum">高頻度 MP サプライズの直交化（mps_orth）。情報効果は見せかけ。再現済・MPS データの出所。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Nakamura & Steinsson (2018)</span> <span class="out">QJE 133(3)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.nber.org/system/files/working_papers/w19260/w19260.pdf" target="_blank" rel="noopener">PDF 74p</a></span></div>
+      <p class="sum">FOMC 周辺の高頻度識別と情報効果。BS(2023) が反証する対象。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Monin (2019)</span> <span class="out">Risks 7(1)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.financialresearch.gov/working-papers/files/OFRwp-17-04_The-OFR-Financial-Stress-Index.pdf" target="_blank" rel="noopener">PDF 41p</a></span></div>
+      <p class="sum">OFR Financial Stress Index の構成（5 カテゴリ）。SHAP のストレス分解と相性が良い。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Campisi (2000)</span> <span class="out">J. Performance Measurement 4(4)</span><span class="lk"><span class="nopdf">PDF 無し</span></span></div>
+      <p class="sum">債券アトリビューションの実務標準。A1 の線形ベンチマーク。無料版が無いため未取得（大学図書館で要複写）。</p>
+      <div class="meta"><span class="tag a1">A1</span></div></div>
+  </div>
+
+  <div class="cat">
+    <div class="ch" style="--c:var(--skim)">F. 周辺・他資産（低優先）</div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Lustig, Roussanov & Verdelhan (2011)</span> <span class="out">RFS 24(11)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.nber.org/system/files/working_papers/w14082/w14082.pdf" target="_blank" rel="noopener">PDF 63p</a></span></div>
+      <p class="sum">通貨キャリーの共通リスクファクター。前職 FX との接点、RP 構造の発想源。</p>
+      <div class="meta"><span class="tag x">周辺</span></div></div>
+
+    <div class="pcard"><div class="r1"><span class="cite">Liao (2020)</span> <span class="out">JFE 138(2)</span><span class="lk"><span class="pri skim">流し読み</span> <a href="https://www.federalreserve.gov/econres/ifdp/files/ifdp1255.pdf" target="_blank" rel="noopener">PDF 56p</a></span></div>
+      <p class="sum">信用格付け移行と CIP デビエーション。クレジット×為替ベーシスの接点（C2 の延長元）。</p>
+      <div class="meta"><span class="tag x">周辺</span></div></div>
+  </div>
+
+  <div class="footer">
+    生成: Claude Code（FI-research）｜ ソース: <code>references/README.md</code>（28 本中 27 PDF 取得済）, <code>docs/research_overview.html</code>, 各 replication README。
+    <br>論文リンクはネット上の無料版（NBER / Fed WP / 著者サイト / AQR / オープンアクセス）。有料版・ペイウォール回避は不使用。引用時は各 README の DOI（出版版）を使用。
+  </div>
+</div>
+</body>
+</html>

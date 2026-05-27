@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FI-research 先行研究オーバービュー</title>
+<style>
+  :root{
+    --ink:#1a2230; --muted:#5b6675; --line:#dfe4ec; --bg:#f6f8fb; --card:#ffffff;
+    --domA:#2563eb; --domB:#d97706; --domC:#059669; --domD:#7c3aed;
+    --a1:#0ea5e9; --a2:#e11d48;
+    --domA-bg:#eaf1fe; --domB-bg:#fdf3e6; --domC-bg:#e7f7f0; --domD-bg:#f3edfd;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    color:var(--ink); background:var(--bg); margin:0; line-height:1.7;
+    font-size:15px;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px 80px}
+  header.hero{
+    background:linear-gradient(135deg,#0f2c5c 0%,#1e3a8a 55%,#3b2a78 100%);
+    color:#fff; padding:46px 28px 40px; margin-bottom:8px;
+  }
+  header.hero .inner{max-width:1180px;margin:0 auto;padding:0 0}
+  header.hero h1{margin:0 0 6px; font-size:30px; letter-spacing:.02em}
+  header.hero .sub{opacity:.86; font-size:15px; margin:0 0 18px}
+  .hero-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:22px}
+  .hero-card{background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18);
+    border-radius:10px; padding:12px 14px}
+  .hero-card .k{font-size:12px; opacity:.8; margin:0 0 2px}
+  .hero-card .v{font-size:15px; font-weight:600; margin:0}
+  .hero-card .v small{font-weight:400; opacity:.8}
+
+  h2{font-size:22px; margin:46px 0 6px; padding-bottom:8px; border-bottom:2px solid var(--line)}
+  h2 .num{color:var(--muted); font-weight:700; margin-right:10px}
+  h3{font-size:17px; margin:26px 0 8px}
+  p.lead{color:var(--muted); margin:6px 0 18px; max-width:880px}
+  a{color:#1d4ed8; text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .toc{display:flex; flex-wrap:wrap; gap:8px; margin:18px 0 0}
+  .toc a{background:#fff; border:1px solid var(--line); border-radius:20px;
+    padding:5px 14px; font-size:13px; color:var(--ink)}
+  .toc a:hover{background:var(--domA); color:#fff; border-color:var(--domA); text-decoration:none}
+
+  /* domain legend chips */
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin:14px 0 8px; font-size:13px}
+  .legend .item{display:flex; align-items:center; gap:7px}
+  .swatch{width:14px;height:14px;border-radius:3px;display:inline-block}
+
+  /* map */
+  .mapbox{background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:10px; overflow-x:auto; box-shadow:0 1px 3px rgba(20,40,80,.05)}
+  svg.map{display:block; width:100%; height:auto; min-width:920px}
+  .edge-legend{display:flex;flex-wrap:wrap;gap:18px;margin:14px 2px 0;font-size:12.5px;color:var(--muted)}
+  .edge-legend span b{color:var(--ink)}
+  .ls{display:inline-block;width:30px;height:0;vertical-align:middle;margin-right:6px}
+
+  /* cards grid */
+  .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:16px}
+  .pcard{background:var(--card); border:1px solid var(--line); border-left-width:5px;
+    border-radius:10px; padding:16px 18px; box-shadow:0 1px 2px rgba(20,40,80,.04)}
+  .pcard.dA{border-left-color:var(--domA)}
+  .pcard.dB{border-left-color:var(--domB)}
+  .pcard.dC{border-left-color:var(--domC)}
+  .pcard.dD{border-left-color:var(--domD)}
+  .pcard h4{margin:0 0 2px; font-size:15.5px}
+  .pcard .cite{font-size:12px; color:var(--muted); margin:0 0 10px}
+  .pcard .badge{display:inline-block; font-size:11px; font-weight:700; border-radius:5px;
+    padding:2px 7px; margin-left:6px; vertical-align:middle}
+  .b-done{background:#dcfce7; color:#15803d}
+  .b-warn{background:#fee2e2; color:#b91c1c}
+  .b-ref{background:#ede9fe; color:#6d28d9}
+  .pcard dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:3px 10px; font-size:13.3px}
+  .pcard dt{color:var(--muted); white-space:nowrap; font-weight:600}
+  .pcard dd{margin:0}
+  .tag{display:inline-block; font-size:11px; background:#eef2f7; color:#334; border-radius:4px;
+    padding:1px 7px; margin:1px 3px 1px 0}
+  .tag.a1{background:#e0f2fe;color:#0369a1}
+  .tag.a2{background:#ffe4e9;color:#be123c}
+
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:13.5px; background:#fff;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden}
+  th,td{padding:9px 12px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top}
+  th{background:#eef2f8; font-size:12.5px; color:#334}
+  tr:last-child td{border-bottom:none}
+  td .pill{font-size:11px;font-weight:700;border-radius:5px;padding:1px 7px}
+  .p-a1{background:#e0f2fe;color:#0369a1}
+  .p-a2{background:#ffe4e9;color:#be123c}
+  .p-both{background:#f0e9ff;color:#6d28d9}
+
+  .callout{background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:16px 0}
+  .callout.warn{border-left:5px solid var(--a2); background:#fff7f8}
+  .callout.key{border-left:5px solid var(--domC); background:#f3fbf7}
+  .callout h4{margin:0 0 8px}
+  .callout ul{margin:6px 0 0; padding-left:20px}
+  .callout li{margin:4px 0}
+
+  .idea{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:16px 0}
+  .idea.A1{border-top:4px solid var(--a1)}
+  .idea.A2{border-top:4px solid var(--a2)}
+  .idea.B{border-top:4px solid var(--muted)}
+  .idea h3{margin:2px 0 4px; display:flex; align-items:center; gap:10px}
+  .idea .chip{font-size:12px;font-weight:700;border-radius:6px;padding:3px 10px;color:#fff}
+  .chip-a1{background:var(--a1)} .chip-a2{background:var(--a2)} .chip-b{background:var(--muted)}
+  .idea .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:10px}
+  .idea h5{margin:0 0 4px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .idea ul{margin:0;padding-left:18px} .idea li{margin:3px 0}
+
+  .small{font-size:12.5px;color:var(--muted)}
+  .footer{margin-top:50px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+
+  @media (max-width:780px){
+    .hero-grid{grid-template-columns:repeat(2,1fr)}
+    .cards{grid-template-columns:1fr}
+    .idea .grid2{grid-template-columns:1fr}
+  }
+  @media print{
+    body{background:#fff;font-size:11.5px}
+    header.hero{background:#0f2c5c !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toc{display:none}
+    .pcard,.idea,.callout,table,.mapbox{break-inside:avoid; box-shadow:none}
+    h2{break-after:avoid}
+    a{color:var(--ink)}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    /* マップ全体を 1 ページ幅に収める（横スクロール無効化） */
+    .mapbox{overflow:visible}
+    svg.map{min-width:0; width:100%}
+    .cards{grid-template-columns:1fr 1fr}
+  }
+  @page{size:A4 landscape; margin:12mm}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="inner">
+    <h1>FI-research ── 先行研究の流れと位置づけ</h1>
+    <p class="sub">債券（Fixed Income）リサーチ｜公開データ + 大学経由WRDS のみで完結｜<b>主テーマ A2 に収束（A1 は保留）</b>　最終更新 2026-05-26</p>
+    <div class="hero-grid">
+      <div class="hero-card"><p class="k">研究テーマ</p><p class="v">A2 に収束 <small>2026-05-26</small></p></div>
+      <div class="hero-card"><p class="k">再現済み先行研究</p><p class="v">6 本 <small>全て done</small></p></div>
+      <div class="hero-card"><p class="k">整備済データ</p><p class="v">30 ソース <small>15 loader</small></p></div>
+      <div class="hero-card"><p class="k">派生分析</p><p class="v">1 / 3 <small>A2系のみ完了</small></p></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="lead">
+    本ページは <code>projects/replications</code>（6本の再現）・<code>projects/derivatives</code>（派生分析）・
+    <code>projects/00_exploration</code>（A1/A2 feasibility）に蓄積した内容を 1 枚に統合した俯瞰図です。
+    各先行研究のサマリ、研究間のドメインマップ、新規アイデアと新規性・付加価値、そして未着手のミッシングリンクを連結して示します。
+  </p>
+
+  <nav class="toc">
+    <a href="#map">① 研究マップ</a>
+    <a href="#summaries">② 先行研究サマリ</a>
+    <a href="#cross">③ 横断的発見</a>
+    <a href="#established">④ 自分で確立したこと</a>
+    <a href="#ideas">⑤ 新規アイデア × 新規性 × 付加価値</a>
+    <a href="#missing">⑥ ミッシングリンク / 追加サーベイ候補</a>
+    <a href="#biblio">⑦ 文献リスト（拡充サーベイ）</a>
+  </nav>
+
+  <!-- ===================== ① MAP ===================== -->
+  <h2 id="map"><span class="num">①</span>研究マップ ── 4 ドメインと A1/A2 の位置づけ</h2>
+  <p class="lead">
+    先行研究を <b>4 つのドメイン</b>に整理し、データ・手法・実証の依存関係を線で結んだ。
+    左右の既存研究群が中央の 2 つのテーマ（A1・A2）へ収束する構図。
+    A2 は「クレジット×Factor Zoo 方法論の交点」に立ち <b>2026-05-26 に主テーマとして確定</b>。
+    A1 は「全ドメインを非線形に統合する方法論」だが、feasibility 検証（§④）で公開・月次データでは予測改善を示せず <b>保留</b>（MBS/Callable 等の個別証券データ待ち）。
+  </p>
+
+  <div class="legend">
+    <span class="item"><span class="swatch" style="background:var(--domA)"></span>① 金利期間構造・国債リスクプレミアム</span>
+    <span class="item"><span class="swatch" style="background:var(--domB)"></span>② クレジット × マクロ連関</span>
+    <span class="item"><span class="swatch" style="background:var(--domC)"></span>③ 金融政策ショック識別</span>
+    <span class="item"><span class="swatch" style="background:var(--domD)"></span>④ 方法論: Factor Zoo & ML</span>
+  </div>
+
+  <div class="mapbox">
+    <svg class="map" viewBox="0 0 1240 880" role="img" aria-label="研究マップ">
+      <defs>
+        <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#334155"/>
+        </marker>
+        <marker id="arrowR" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L7,3 L0,6 Z" fill="#dc2626"/>
+        </marker>
+      </defs>
+
+      <!-- domain panels -->
+      <g font-family="inherit">
+        <rect x="24" y="70" width="340" height="300" rx="14" fill="var(--domA-bg)" stroke="var(--domA)" stroke-opacity=".35"/>
+        <text x="44" y="98" font-size="15" font-weight="700" fill="var(--domA)">① 金利期間構造・国債RP</text>
+
+        <rect x="24" y="392" width="340" height="430" rx="14" fill="var(--domB-bg)" stroke="var(--domB)" stroke-opacity=".4"/>
+        <text x="44" y="420" font-size="15" font-weight="700" fill="var(--domB)">② クレジット × マクロ</text>
+
+        <rect x="876" y="70" width="340" height="240" rx="14" fill="var(--domC-bg)" stroke="var(--domC)" stroke-opacity=".4"/>
+        <text x="896" y="98" font-size="15" font-weight="700" fill="var(--domC)">③ 金融政策ショック</text>
+
+        <rect x="876" y="332" width="340" height="490" rx="14" fill="var(--domD-bg)" stroke="var(--domD)" stroke-opacity=".4"/>
+        <text x="896" y="360" font-size="15" font-weight="700" fill="var(--domD)">④ 方法論: Factor Zoo &amp; ML</text>
+      </g>
+
+      <!-- EDGES (drawn first, nodes on top) -->
+      <!-- lineage within domain A -->
+      <g stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)" opacity=".75">
+        <path d="M194,158 L194,196"/>      <!-- GSW->CP -->
+        <path d="M194,250 L194,288"/>      <!-- CP->LN -->
+      </g>
+      <!-- lineage within domain B: HvZ -> BBW retracted (tension) -->
+      <g stroke="#dc2626" stroke-width="2" stroke-dasharray="6 4" fill="none" marker-end="url(#arrowR)" opacity=".8">
+        <path d="M194,600 L194,650"/>
+      </g>
+      <!-- GZ <-> BS two sides (cross domain) -->
+      <path d="M268,480 C520,470 760,300 1006,230" stroke="#64748b" stroke-width="1.6" stroke-dasharray="2 5" fill="none" opacity=".7"/>
+
+      <!-- data/empirical support to A1 (teal solid) -->
+      <g stroke="#0ea5e9" stroke-width="1.7" fill="none" opacity=".55">
+        <path d="M268,128 C420,150 480,220 556,256"/>   <!-- GSW->A1 -->
+        <path d="M268,222 C400,240 470,255 556,272"/>   <!-- CP->A1 -->
+        <path d="M268,300 C400,300 470,290 556,288"/>   <!-- LN->A1 -->
+        <path d="M268,460 C400,400 470,330 556,300"/>   <!-- GZ->A1 -->
+        <path d="M1006,230 C840,250 700,270 690,278"/>  <!-- BS->A1 -->
+      </g>
+      <!-- method inputs to A1 (purple dashed) -->
+      <g stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="5 4" fill="none" opacity=".6">
+        <path d="M952,408 C820,360 720,300 690,286"/>   <!-- Campisi->A1 -->
+        <path d="M952,470 C820,420 720,310 690,290"/>   <!-- GKX->A1 -->
+        <path d="M952,536 C800,470 720,330 690,294"/>   <!-- BBT->A1 -->
+        <path d="M952,602 C800,520 720,360 690,300"/>   <!-- BPZ->A1 -->
+      </g>
+      <!-- support / method to A2 -->
+      <g stroke="#e11d48" stroke-width="1.7" fill="none" opacity=".5">
+        <path d="M268,560 C400,580 470,600 556,604"/>   <!-- HvZ->A2 -->
+        <path d="M268,668 C400,660 470,640 556,620"/>   <!-- BBW->A2 -->
+        <path d="M268,470 C420,560 470,590 556,596"/>   <!-- GZ(EBP)->A2 systematic comp -->
+      </g>
+      <g stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="5 4" fill="none" opacity=".6">
+        <path d="M952,690 C800,680 720,640 690,620"/>   <!-- FGX->A2 -->
+        <path d="M952,758 C800,740 720,660 690,628"/>   <!-- KNS->A2 -->
+      </g>
+      <!-- A1 <-> A2 shared infra -->
+      <path d="M624,330 L624,556" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="3 4" fill="none"/>
+
+      <!-- NODES -->
+      <!-- helper style via groups -->
+      <g font-size="13" font-weight="600" text-anchor="middle">
+        <!-- Domain A nodes -->
+        <g>
+          <rect x="120" y="112" width="150" height="44" rx="9" fill="#fff" stroke="var(--domA)" stroke-width="1.5"/>
+          <text x="195" y="130" fill="var(--ink)">GSW (2007)</text>
+          <text x="195" y="146" font-size="11" font-weight="400" fill="var(--muted)">利回り曲線・NSS</text>
+        </g>
+        <g>
+          <rect x="120" y="200" width="150" height="44" rx="9" fill="#fff" stroke="var(--domA)" stroke-width="1.5"/>
+          <text x="195" y="218" fill="var(--ink)">Cochrane-Piazzesi (2005)</text>
+          <text x="195" y="234" font-size="11" font-weight="400" fill="var(--muted)">CP factor</text>
+        </g>
+        <g>
+          <rect x="120" y="288" width="150" height="44" rx="9" fill="#fff" stroke="var(--domA)" stroke-width="1.5"/>
+          <text x="195" y="306" fill="var(--ink)">Ludvigson-Ng (2009)</text>
+          <text x="195" y="322" font-size="11" font-weight="400" fill="var(--muted)">マクロ PCA factor</text>
+        </g>
+
+        <!-- Domain B nodes -->
+        <g>
+          <rect x="120" y="438" width="150" height="44" rx="9" fill="#fff" stroke="var(--domB)" stroke-width="1.5"/>
+          <text x="195" y="456" fill="var(--ink)">Gilchrist-Zakrajšek (2012)</text>
+          <text x="195" y="472" font-size="11" font-weight="400" fill="var(--muted)">EBP</text>
+        </g>
+        <g>
+          <rect x="120" y="538" width="150" height="44" rx="9" fill="#fff" stroke="var(--domB)" stroke-width="1.5"/>
+          <text x="195" y="556" fill="var(--ink)">Houweling-vanZundert</text>
+          <text x="195" y="572" font-size="11" font-weight="400" fill="var(--muted)">(2017) 社債ファクター</text>
+        </g>
+        <g>
+          <rect x="120" y="646" width="150" height="46" rx="9" fill="#fff" stroke="var(--domB)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="195" y="664" fill="var(--ink)">Bai-Bali-Wen (2019)</text>
+          <text x="195" y="681" font-size="11" font-weight="400" fill="#b91c1c">⚠ 2023 撤回</text>
+        </g>
+
+        <!-- Domain C nodes -->
+        <g>
+          <rect x="970" y="118" width="150" height="44" rx="9" fill="#fff" stroke="var(--domC)" stroke-width="1.5"/>
+          <text x="1045" y="136" fill="var(--ink)">Nakamura-Steinsson</text>
+          <text x="1045" y="152" font-size="11" font-weight="400" fill="var(--muted)">(2018) 高頻度識別</text>
+        </g>
+        <g>
+          <rect x="970" y="208" width="150" height="44" rx="9" fill="#fff" stroke="var(--domC)" stroke-width="1.5"/>
+          <text x="1045" y="226" fill="var(--ink)">Bauer-Swanson (2023)</text>
+          <text x="1045" y="242" font-size="11" font-weight="400" fill="var(--muted)">MPS 直交化</text>
+        </g>
+
+        <!-- Domain D nodes -->
+        <g font-size="12.5">
+          <rect x="970" y="386" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="409" fill="var(--ink)">Campisi (2000)</text>
+          <rect x="970" y="452" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="475" fill="var(--ink)">Gu-Kelly-Xiu (2020)</text>
+          <rect x="970" y="518" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="541" fill="var(--ink)">Bianchi+ (2021) 債券ML</text>
+          <rect x="970" y="584" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="607" fill="var(--ink)">Bryzgalova+ (2023)</text>
+          <rect x="970" y="672" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="695" fill="var(--ink)">Feng-Giglio-Xiu (2020)</text>
+          <rect x="970" y="740" width="150" height="38" rx="9" fill="#fff" stroke="var(--domD)" stroke-width="1.5"/>
+          <text x="1045" y="763" fill="var(--ink)">Kozak-Nagel-Santosh</text>
+        </g>
+
+        <!-- CENTER: A1 / A2 -->
+        <g>
+          <rect x="556" y="256" width="136" height="74" rx="14" fill="var(--a1)" fill-opacity=".55" stroke="var(--a1)" stroke-width="2" stroke-dasharray="6 4"/>
+          <text x="624" y="282" font-size="17" font-weight="800" fill="#fff">A1 <tspan font-size="11" font-weight="700">（保留）</tspan></text>
+          <text x="624" y="302" font-size="11.5" font-weight="600" fill="#f0faff">SHAP × 債券</text>
+          <text x="624" y="318" font-size="11.5" font-weight="600" fill="#f0faff">アトリビューション</text>
+        </g>
+        <g>
+          <rect x="556" y="556" width="136" height="74" rx="14" fill="var(--a2)" stroke="#fff" stroke-width="2"/>
+          <text x="624" y="548" font-size="11" font-weight="700" fill="var(--a2)">★ 主テーマ（確定）</text>
+          <text x="624" y="584" font-size="17" font-weight="800" fill="#fff">A2</text>
+          <text x="624" y="604" font-size="11.5" font-weight="600" fill="#ffe9ee">ポスト BBW</text>
+          <text x="624" y="620" font-size="11.5" font-weight="600" fill="#ffe9ee">社債ファクター</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="edge-legend">
+    <span><span class="ls" style="border-top:2px solid #1d4ed8"></span><b>データ系譜 / 拡張</b>（GSW→CP→LN）</span>
+    <span><span class="ls" style="border-top:2px dashed #dc2626"></span><b>撤回・緊張関係</b>（HvZ→BBW）</span>
+    <span><span class="ls" style="border-top:2px solid #0ea5e9"></span><b>実証的支持 → A1</b></span>
+    <span><span class="ls" style="border-top:2px solid #e11d48"></span><b>支持 → A2</b></span>
+    <span><span class="ls" style="border-top:2px dashed #7c3aed"></span><b>方法論の投入</b></span>
+    <span><span class="ls" style="border-top:2px dotted #64748b"></span><b>同一現象の表裏</b>（GZ↔BS）</span>
+  </div>
+
+  <!-- ===================== ② SUMMARIES ===================== -->
+  <h2 id="summaries"><span class="num">②</span>各先行研究のサマリ</h2>
+  <p class="lead">
+    手元の公開データだけで再現できた 6 本（✅）に加え、A2 の起点となる撤回論文（⚠）と方法論の柱（参照）を併記。
+    各カードは <b>主張 → 手元での再現結果 → A1/A2 への含意</b> の順。
+  </p>
+
+  <div class="cards">
+
+    <!-- GSW -->
+    <div class="pcard dA">
+      <h4>Gürkaynak, Sack &amp; Wright (2007)<span class="badge b-done">✅ 検証済</span></h4>
+      <p class="cite">"The U.S. Treasury yield curve: 1961 to the present" — <i>JME</i> 54(8)</p>
+      <dl>
+        <dt>主張</dt><dd>Svensson 6 パラメータ NSS で米国債ゼロ曲線を構築・日次公開。bond pricing のデファクト標準。</dd>
+        <dt>再現</dt><dd>公開 BETA/TAU から再計算した SVENY と公式値が <b>RMS 0.002bps で完全一致</b>。任意満期で曲線評価が自由にできることを確認。</dd>
+        <dt>含意</dt><dd><span class="tag a1">A1</span><span class="tag a2">A2</span>level/slope/curvature の 6 パラメータをそのまま ML 入力に。全分析の曲線インフラ。</dd>
+      </dl>
+    </div>
+
+    <!-- CP -->
+    <div class="pcard dA">
+      <h4>Cochrane &amp; Piazzesi (2005)<span class="badge b-done">✅ done</span></h4>
+      <p class="cite">"Bond Risk Premia" — <i>AER</i> 95(1)</p>
+      <dl>
+        <dt>主張</dt><dd>フォワードの単一線形結合（CP factor・テント型）が 2–5 年超過リターンの 30–44% を予測。1 因子制約。</dd>
+        <dt>再現</dt><dd><b>1 因子制約は完全再現</b>（unrestricted≈single）。ただし GSW 平滑化で R² は論文比 10–15pt 低く、テント頂点も左シフト。論文後も R²≈0.18–0.26 維持。</dd>
+        <dt>含意</dt><dd><span class="tag a1">A1</span>CP を線形ベンチマークとし、SHAP で「CP を超える非線形寄与」を抽出する設計の妥当性を支持。</dd>
+      </dl>
+    </div>
+
+    <!-- LN -->
+    <div class="pcard dA">
+      <h4>Ludvigson &amp; Ng (2009)<span class="badge b-done">✅ done</span></h4>
+      <p class="cite">"Macro Factors in Bond Risk Premia" — <i>RFS</i> 22(12)</p>
+      <dl>
+        <dt>主張</dt><dd>マクロ 132 系列の PCA 因子が CP factor を<b>超えて</b>国債超過リターンを予測（R² 0.30→0.45）。</dd>
+        <dt>再現</dt><dd>FRED 11 系列の粗い PCA でも「マクロが CP を超える」方向性は一致。ΔR² <b>+9〜+14pt</b>。ポスト QE 期は CP 単独が無力化する一方マクロ因子は予測力を保持。</dd>
+        <dt>含意</dt><dd><span class="tag a1">A1</span>曲線情報とマクロを非線形に統合する動機。線形 PCA を ML が超えられるかが検証点。</dd>
+      </dl>
+    </div>
+
+    <!-- GZ -->
+    <div class="pcard dB">
+      <h4>Gilchrist &amp; Zakrajšek (2012)<span class="badge b-done">✅ done</span></h4>
+      <p class="cite">"Credit Spreads and Business Cycle Fluctuations" — <i>AER</i> 102(4)</p>
+      <dl>
+        <dt>主張</dt><dd>社債スプレッドを予想デフォルト成分と <b>EBP</b> に分解。EBP は実体経済の強い先行指標（t 5–10）。</dd>
+        <dt>再現</dt><dd>論文期間 (1973–2010) は R² 0.25–0.60 で完全再現。だが <b>2011 年以降は予測力がほぼ消失</b>（全係数が非有意）。</dd>
+        <dt>含意</dt><dd><span class="tag a1">A1</span><span class="tag a2">A2</span>線形 EBP のレジーム依存的崩壊 → 非線形・状態依存モデルの必要性を実証。</dd>
+      </dl>
+    </div>
+
+    <!-- HvZ -->
+    <div class="pcard dB">
+      <h4>Houweling &amp; van Zundert (2017)<span class="badge b-done">✅ done</span></h4>
+      <p class="cite">"Factor Investing in the Corporate Bond Market" — <i>FAJ</i> 73(2)</p>
+      <dl>
+        <dt>主張</dt><dd>社債で Size/Low-Risk/Value/Momentum の 4 ファクターが有意なアルファ。MultiFactor が最良 IR。</dd>
+        <dt>再現</dt><dd>符号・相対順位は一致。Robeco 公開データはクレジットβ込みのため vol が論文比 2 倍。<b>フル期間 (1994–2025) で HY 全ファクター t&gt;2.7、MultiFactor t=3.27</b>。</dd>
+        <dt>含意</dt><dd><span class="tag a2">A2</span><b>ポスト BBW でも社債ファクタープレミアムは消失していない</b> ── A2 の妥当性を直接支持。</dd>
+      </dl>
+    </div>
+
+    <!-- BBW -->
+    <div class="pcard dB">
+      <h4>Bai, Bali &amp; Wen (2019)<span class="badge b-warn">⚠ 2023 撤回</span></h4>
+      <p class="cite">"Common risk factors in the cross-section of corporate bond returns" — <i>JFE</i> 131(3)</p>
+      <dl>
+        <dt>主張</dt><dd>TRACE+FISD で社債 4 ファクター（DRF/CRF/LRF）を提唱。社債版 factor model の代表格だった。</dd>
+        <dt>状況</dt><dd>van Binsbergen &amp; Schwert 等が頑健性問題を指摘し <b>2023 年撤回</b>。社債ファクター文献は再構築期に。手元での直接再現は TRACE 必須のため未着手。</dd>
+        <dt>含意</dt><dd><span class="tag a2">A2</span><b>A2 の起点そのもの</b>。撤回がタイミング的な追い風。</dd>
+      </dl>
+    </div>
+
+    <!-- BS -->
+    <div class="pcard dC">
+      <h4>Bauer &amp; Swanson (2023)<span class="badge b-done">✅ done</span></h4>
+      <p class="cite">"An Alternative Explanation for the Fed Information Effect" — <i>AER</i> 113(3)</p>
+      <dl>
+        <dt>主張</dt><dd>高頻度 MPS は純粋な構造ショックではなく事前マクロで予測可能。直交化 <code>mps_orth</code> を使うべき。情報効果は見せかけ。</dd>
+        <dt>再現</dt><dd>raw mps の予測可能性 R²=0.156、<code>mps_orth</code> R²=0.001 と <b>直交化が機能</b>。利回り反応は両者でほぼ同一（構造効果は保存）。</dd>
+        <dt>含意</dt><dd><span class="tag a1">A1</span><span class="tag a2">A2</span>クリーンな政策ショックを説明変数化。GZ と「マクロ状態が社債と政策の両方を駆動する」表裏の関係。</dd>
+      </dl>
+    </div>
+
+    <!-- Methodology card -->
+    <div class="pcard dD">
+      <h4>方法論の柱<span class="badge b-ref">参照</span></h4>
+      <p class="cite">A1/A2 で手法として援用する文献群</p>
+      <dl>
+        <dt>A1 系</dt><dd><b>Campisi (2000)</b> 線形アトリビューションの実務標準（ベンチマーク）／<b>Gu-Kelly-Xiu (2020)</b> 株式 ML 体系／<b>Bianchi+ (2021)</b> 国債リスクプレミアムへの ML／<b>Bryzgalova+ (2023)</b> 決定木による資産価格付け。</dd>
+        <dt>A2 系</dt><dd><b>Feng-Giglio-Xiu (2020)</b> double-selection LASSO（メイン手法・社債適用が新規性）／<b>Kozak-Nagel-Santosh (2020)</b> SDF 縮小（補完）。</dd>
+      </dl>
+    </div>
+
+  </div>
+
+  <!-- ===================== ③ CROSS-CUTTING ===================== -->
+  <h2 id="cross"><span class="num">③</span>横断的発見 ── 再現群が共通して示すこと</h2>
+
+  <div class="callout key">
+    <h4>🔑 「ポスト QE 構造変化」の 3 つの兆候</h4>
+    <ul>
+      <li><b>GZ EBP の景気予測力が 2011 年以降ほぼ消失</b>（論文期間 R² 0.25–0.60 → 論文後 0.01–0.12）。</li>
+      <li><b>CP factor の R² がフル期間で 0.13 へ低下</b>（論文期間の半分以下）。ゼロ金利・QE でフォワードのダイナミクスが変化。</li>
+      <li><b>LN マクロ因子は QE 後も予測力を保持</b> → 国債と社債で QE 影響が非対称。</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <h4>A1 / A2 への含意（強い支持）</h4>
+    <ul>
+      <li>線形手法の R² が時間とともに低下 → <b>非線形・状態依存（A1）のアプローチの動機が補強</b>。</li>
+      <li>Robeco データで post-BBW 期間でも社債ファクタープレミアムが残存 → <b>A2 の妥当性を確認</b>。</li>
+      <li>マクロ・MPS・EBP が独立にリスクプレミアムを担う → <b>ML での統合の余地が大きい</b>。</li>
+      <li>GSW+Robeco+FRED+MPS の 4 ソースで国債・社債 RP の大半を WRDS 不要で議論可能。個別銘柄 (TRACE) が必須なのは A2 の最終横断回帰と BBW 直接再現のみ。</li>
+    </ul>
+  </div>
+
+  <!-- ===================== ④ ESTABLISHED ===================== -->
+  <h2 id="established"><span class="num">④</span>自分で確立したこと ── feasibility 予備分析の結果</h2>
+  <p class="lead">
+    再現に加え <code>00_exploration</code>（A1/A2 feasibility）と <code>derivatives/a_robeco_credit_pc</code>（A2 直結）を実行済み。
+    ここで出た 2 つの結果が、テーマ選定に直結する重要な示唆を含む。
+  </p>
+
+  <div class="callout key">
+    <h4>A2 側（GO）：ファクターは独立で、撤回後も構造的に堅牢</h4>
+    <ul>
+      <li><b>Spanning regression</b>（4 ファクター互いに回帰）── 独立な α が残るのは <b>IG・HY とも Size のみ</b>（IG α 0.80%/年 t=2.40、HY α 2.65%/年 t=2.17）。Value/Momentum/LowRisk は span される ＝「factor zoo の中で独立軸は Size + 合成成分」という A2 の core 結果。</li>
+      <li><b>サブサンプル安定性</b>（MultiFactor α 年率%）── IG: pre-2019 1.32 → 2019-23 2.23 → <b>post-2023 2.46</b>（むしろ強化）、HY: 5.62 → 6.03 → <b>3.79</b>（やや弱化も positive）。<b>BBW 撤回後も factor は消えていない</b>。</li>
+      <li>クレジット PC1（共通クレジットβ）を直交化しても外生プロキシ調整後の <b>HY MultiFactor α は年率 5.5%・t≈4.4</b> ── 「単なるクレジット市場ベータ」ではない。</li>
+      <li><b>個別社債 cross-section は公開データの上限を超える</b>：CIK→ticker→FIGI hit 88.6% だが <b>FIGI→ISIN は 0.0%（仕様）</b>。社債識別子が繋がらない ＝ <b>WRDS / TRACE 申請の客観的根拠</b>として研究計画書に書ける。</li>
+    </ul>
+  </div>
+
+  <div class="callout warn">
+    <h4>⚠ A1 側：集約レベルでは木モデルが OLS に OOS で勝てない</h4>
+    <ul>
+      <li>SHAP スケッチ（02）で月次の <code>Robeco IG MultiFactor</code> を従属変数にすると、<b>LightGBM の out-of-sample R² は OLS を 0.35 下回った</b>（OLS 0.63 vs LGB 0.28）。<code>ΔBAA10Y</code> では木が僅かに優位（+0.02〜+0.10）。</li>
+      <li>交互作用シェアは 0.18〜0.43、寄与はクレジット系に偏在。</li>
+      <li><b>解釈</b>：集約された月次系列では非線形性の付加価値は限定的。これは A1 の本来の主張（非線形性は MBS・Callable・CoCo など<b>オプション性・コンベクシティの強い個別証券</b>でこそ出る）と整合的で、<b>A1 は集約データではなく銘柄レベルデータ (TRACE 等) が前提</b>だと示す。</li>
+    </ul>
+  </div>
+
+  <table>
+    <tr><th>派生バンドル</th><th>テーマ</th><th>状態</th><th>主要結果 / 次の一手</th></tr>
+    <tr><td><code>a_robeco_credit_pc</code></td><td><span class="pill p-a2">A2</span> 社債ファクター精緻化</td><td>✅ done</td><td>credit PC1 直交化後もアルファ t≈4.4。ストレス期 drawdown も算出済。</td></tr>
+    <tr><td><code>b_post_qe_structural</code></td><td><span class="pill p-both">共通</span> ポスト QE 構造変化</td><td>⏳ 空（未着手）</td><td>EBP horse race・regime decomp・CP rolling を実装予定。</td></tr>
+    <tr><td><code>c_mps_credit_transmission</code></td><td><span class="pill p-a1">A1補</span> MPS×クレジット伝播</td><td>⏳ 空（未着手）</td><td>FOMC 日 OAS 反応・local projection・regime interaction。</td></tr>
+  </table>
+
+  <!-- ===================== ⑤ IDEAS ===================== -->
+  <h2 id="ideas"><span class="num">⑤</span>新規研究アイデア × 新規性 × 付加価値</h2>
+  <p class="lead">
+    <b>2026-05-26 に A2 が主テーマとして確定</b>（feasibility で核となる主張が clear-cut に出たため）。A1 は予測改善を示せず保留、補助テーマ B1–B3 は本論文の章として組込み可能。
+    それぞれ「どの先行研究の隙間を埋めるか」で位置づける。下では確定した A2 を先に示す。
+  </p>
+
+  <div class="idea A2">
+    <h3><span class="chip chip-a2">A2 ★主テーマ</span> 社債ファクター構造の再評価（ポスト BBW）</h3>
+    <p class="small">BBW (2019) 撤回後の文脈で「社債版 Taming the Factor Zoo」を構築。FGX の double-selection LASSO を社債に体系適用。米欧日比較（特に日本適用）が新規性軸。</p>
+    <div class="grid2">
+      <div>
+        <h5>新規性（埋める隙間）</h5>
+        <ul>
+          <li>BBW 撤回というタイミング的追い風で <b>社債 factor zoo を再整理</b>。</li>
+          <li>Feng-Giglio-Xiu (2020) の手法を <b>社債へ体系的に初適用</b>。</li>
+          <li>米国中心の先行研究に対し <b>日本社債市場への拡張</b>。</li>
+        </ul>
+      </div>
+      <div>
+        <h5>付加価値・リンク</h5>
+        <ul>
+          <li>HvZ(2017) 再現 + spanning + credit PC1 直交化で「独立軸は Size、撤回後も α 健在、クレジットβではない」を既に実証（§④）。</li>
+          <li>Kozak-Nagel-Santosh の SDF で次元削減を補完。</li>
+          <li>アカデミック新規性が最も高い。最終段階で TRACE/FISD（WRDS）が必要 ＝ 申請根拠も確立済。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="idea A1" style="opacity:.92">
+    <h3><span class="chip chip-a1" style="background:#94a3b8">A1（保留）</span> SHAP 値ベースの債券アトリビューション</h3>
+    <p class="small">機械学習＋SHAP で実現リターンを非線形分解し、線形手法が「アルファ」と誤分類した系統的露出を識別する。</p>
+    <div class="grid2">
+      <div>
+        <h5>新規性（埋める隙間）</h5>
+        <ul>
+          <li>SHAP を「予測モデルの解釈」でなく <b>実現リターンの事後分解ツール</b>と位置づける視点転換。</li>
+          <li>Campisi 型線形分解と SHAP 分解の <b>整合性条件を理論的に定式化</b>。</li>
+          <li>債券アトリビューション文脈ではほぼ未開拓（先行は Gu-Kelly-Xiu の株式予測、Bianchi+ の国債 RP 予測まで）。</li>
+        </ul>
+      </div>
+      <div>
+        <h5>付加価値・リンク</h5>
+        <ul>
+          <li>ベンチマーク = CP(2005)・EBP(GZ2012)・MPS(BS2023) を ML 入力に統合。</li>
+          <li><b>本研究の予備分析が示す論点</b>：集約データでは非線形優位性が小さい → <b>MBS/Callable/CoCo など個別オプション性証券</b>で価値が出る、という実証に焦点を絞れる。</li>
+          <li>実務インパクト高・キャッチー。教員は ML×Finance が必要。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="idea B">
+    <h3><span class="chip chip-b">B1–B3</span> 補助テーマ（本論文の章として組込み可能）</h3>
+    <div class="grid2">
+      <div>
+        <h5>B1 レジーム依存アトリビューション</h5>
+        <ul><li>HMM・change-point でレジーム識別 → レジーム別係数。GZ の予測力崩壊・CP の R² 低下に直結。<code>derivatives/b_post_qe_structural</code> が受け皿。</li></ul>
+        <h5>B2 アルファ persistence</h5>
+        <ul><li>Fama-MacBeth で selection alpha の持続性検証。A2 の横断回帰と一体。</li></ul>
+      </div>
+      <div>
+        <h5>B3 マルチエージェント LLM</h5>
+        <ul><li>アトリビューション結果の自動解釈・異常検知。実装力勝負。A1 の出力レイヤとして接続。</li></ul>
+        <h5 style="margin-top:14px">優先度を下げたテーマ</h5>
+        <ul><li>C1 証券化商品（データ入手困難）／C2 CIP×クレジット（Liao 2020 の延長になりやすい）／C3 金利サプライズ×伝播（ML 色の A1/A2 に吸収）。</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ⑥ MISSING LINKS ===================== -->
+  <h2 id="missing"><span class="num">⑥</span>ミッシングリンク / 追加サーベイ候補</h2>
+  <p class="lead">
+    現在のマップで線が細い・欠けている領域。優先度順に、追加で読む文献・取得すべきデータと、どのテーマに効くかを示す。
+  </p>
+
+  <h3>A. データの欠落（最重要 ── ここが律速）</h3>
+  <table>
+    <tr><th>項目</th><th>なぜ必要か（埋めるリンク）</th><th>テーマ</th><th>入手経路</th></tr>
+    <tr><td><b>TRACE + Mergent FISD</b></td><td>A2 の横断回帰と BBW 直接再現に必須。A1 の「個別オプション性証券での非線形性」検証にも必要（④の示唆より）。現状マップの最大の空白。</td><td><span class="pill p-both">A1/A2</span></td><td>大学経由 WRDS</td></tr>
+    <tr><td><b>日本社債データ（JSDA 公社債店頭参考値 / 財務省 JGB）</b></td><td>A2 の「日本市場拡張」という新規性の根拠。米国中心マップに国際比較軸を追加。</td><td><span class="pill p-a2">A2</span></td><td>日証協・財務省（公開）</td></tr>
+    <tr><td><b>FRED-MD 132 系列（McCracken-Ng）</b></td><td>LN(2009) を 11 系列でなく原論文 panel でフル再現し R²≈0.45 を厳密化。</td><td><span class="pill p-a1">A1</span></td><td>公開</td></tr>
+    <tr><td><b>WRDS Fama-Bliss yields</b></td><td>CP(2005) を GSW でなく原データで再現し R² 0.32–0.37 を厳密化（GSW 平滑化による 10–15pt 乖離の解消）。</td><td><span class="pill p-a1">A1</span></td><td>WRDS</td></tr>
+    <tr><td><b>クレジットインデックス月次（BBG Barclays IG/HY）</b></td><td>HvZ の IR をベンチマーク超過ベースで厳密再現（クレジットβ控除）。</td><td><span class="pill p-a2">A2</span></td><td>WRDS / Bloomberg</td></tr>
+  </table>
+
+  <h3>B. 文献の欠落（マップに未登録の重要ノード）</h3>
+  <table>
+    <tr><th>文献</th><th>埋めるリンク</th><th>テーマ</th></tr>
+    <tr><td><b>Israel, Palhares &amp; Richardson (2018)</b> AQR 社債ファクター</td><td>HvZ と並ぶ社債ファクターの主要実証。A2 の候補ファクター集合の根拠。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>Kelly, Palhares &amp; Pruitt (2023)</b> 社債 IPCA / latent factors</td><td>社債への潜在ファクター・条件付きモデル。A2 の方法論比較対象（FGX/KNS の隣）。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>van Binsbergen &amp; Schwert (2021ほか)</b></td><td>BBW 撤回の直接的根拠。A2 の問題意識を正確に記述するために必読。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>Jensen, Kelly &amp; Pedersen (2023)</b> Global Factor Data</td><td>ファクター再現性のグローバル基盤。日本拡張・factor zoo の文脈。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>He, Kelly &amp; Manela (2017)</b> 仲介機関の制約</td><td>ディーラー在庫（手元の NY Fed PD / CFTC TFF）とリスクプレミアムを結ぶ理論。マップのディーラー軸が現状孤立。</td><td><span class="pill p-both">A1/A2</span></td></tr>
+    <tr><td><b>Asvanunt &amp; Richardson (2017)</b> The Credit Risk Premium</td><td>クレジット RP の定義。EBP（GZ）とファクター（HvZ）を橋渡し。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>Frazzini &amp; Pedersen (2014)</b> Betting Against Beta</td><td>Low-Risk ファクターの理論的起源。HvZ の Low-Risk の解釈に必要。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>Dick-Nielsen, Feldhütter &amp; Lando (2012)</b> 社債流動性</td><td>流動性プレミアムの計測。BBW 撤回の頑健性問題（流動性調整）に直結。</td><td><span class="pill p-a2">A2</span></td></tr>
+    <tr><td><b>Lundberg &amp; Lee (2017) / Shapley 公理</b>（SHAP 原典）</td><td>A1 の理論パートの基礎。SHAP の efficiency/additivity が集計後も保たれる条件の出典。<b>債券アトリビューションへの SHAP 適用そのものが未踏</b>＝マップ上の空白＝A1 の核心。</td><td><span class="pill p-a1">A1</span></td></tr>
+    <tr><td><b>Diebold &amp; Li (2006)</b> 動的 NS</td><td>GSW パラメータの時変ダイナミクス。level/slope/curvature factor の標準。A1 の曲線特徴量設計。</td><td><span class="pill p-a1">A1</span></td></tr>
+  </table>
+
+  <h3>C. 分析の欠落（着手すれば即マップが埋まる）</h3>
+  <div class="callout">
+    <ul>
+      <li><b><code>derivatives/b_post_qe_structural</code> が空</b> ── 横断的発見③をきちんと検定（EBP horse race＝OFR FSI/NFCI/MOVE との競合、regime decomposition、CP rolling β）すれば B1 の核になる。</li>
+      <li><b><code>derivatives/c_mps_credit_transmission</code> が空</b> ── <code>mps_orth</code> で社債 OAS の FOMC 日反応・local projection を取れば、③のマクロ→クレジット→政策の連鎖を埋める A1 補章になる。BS↔GZ の点線（同一現象の表裏）を実線にできる。</li>
+      <li><b>A1 の銘柄レベル検証</b> ── ④の示唆（集約では非線形性が弱い）を受け、TRACE 取得後に「コンベクシティ・オプション性が高い銘柄ほど SHAP 非線形寄与が大きい」を検証する設計が A1 の GO/NO-GO を決める。</li>
+    </ul>
+  </div>
+
+  <!-- ===================== ⑦ BIBLIOGRAPHY ===================== -->
+  <h2 id="biblio"><span class="num">⑦</span>文献リスト（拡充サーベイ）</h2>
+  <p class="lead">
+    社債／債券ファクターと仲介機関アセットプライシングを中心に拡充した読むべき文献。「関連」列は本リポジトリのテーマ・既存ノードとの接続を示す
+    （<span class="pill p-a2">A2</span> 主テーマ／<span class="pill p-a1">A1</span> 保留／<span class="pill p-both">共通</span>）。
+    §⑥ のミッシングリンクと重複するものは A2 の文献レビュー骨子の中核になる。
+  </p>
+
+  <table>
+    <tr>
+      <th style="width:23%">タイトル</th>
+      <th style="width:16%">主なテーマ</th>
+      <th>コメント</th>
+      <th style="width:8%">関連</th>
+      <th style="width:7%">リンク</th>
+    </tr>
+    <tr>
+      <td><b>Factor Investing in the Corporate Bond Market</b></td>
+      <td>社債スタイルファクター（Value, Momentum, Low-Risk, Size）</td>
+      <td>債券ファクター投資の代表的実務論文。transaction cost 考慮も重要。<span class="small">（＝ HvZ 2017、§② で再現済の中核ノード）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://www.tandfonline.com/doi/abs/10.2469/faj.v73.n2.1" target="_blank" rel="noopener">FAJ</a></td>
+    </tr>
+    <tr>
+      <td><b>Fixed Income Factors: Theory and Practice</b></td>
+      <td>Fixed income factor の総論</td>
+      <td>carry, value, momentum, liquidity などを実務目線含め整理。</td>
+      <td><span class="pill p-both">共通</span></td>
+      <td><a href="https://www.pm-research.com/content/iijpormgmt/50/3/41" target="_blank" rel="noopener">JPM</a></td>
+    </tr>
+    <tr>
+      <td><b>Factor-based investing in government bond markets: a survey</b></td>
+      <td>国債ファクター投資レビュー</td>
+      <td>government bond 中心だが factor investing の整理に良い。<span class="small">（CP/LN の文脈に接続）</span></td>
+      <td><span class="pill p-both">共通</span></td>
+      <td><a href="https://link.springer.com/article/10.1057/s41260-020-00156-3" target="_blank" rel="noopener">JAM</a></td>
+    </tr>
+    <tr>
+      <td><b>A Research-based Approach to Fixed Income Factor Portfolio Implementation</b></td>
+      <td>実装・portfolio construction</td>
+      <td>turnover, risk budgeting, attribution など実務寄り。<span class="small">（A1 のアトリビューション視点とも接続）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4546013" target="_blank" rel="noopener">SSRN</a></td>
+    </tr>
+    <tr>
+      <td><b>Which Factors for Corporate Bond Returns?</b></td>
+      <td>社債 factor zoo 整理</td>
+      <td>本当に効く factor は何かを検証。<span class="small">（A2 の spanning/double-selection と直結）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://academic.oup.com/raps/article/13/4/615/7055305" target="_blank" rel="noopener">RAPS</a></td>
+    </tr>
+    <tr>
+      <td><b>Priced Risk in Corporate Bonds</b></td>
+      <td>社債 risk pricing</td>
+      <td>多くの factor は market factor 超過説明力が弱いという議論。<span class="small">（BBW 撤回後の懐疑論の柱）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://www.sciencedirect.com/science/article/abs/pii/S0304405X23001393" target="_blank" rel="noopener">JFE</a></td>
+    </tr>
+    <tr>
+      <td><b>The Corporate Bond Factor Zoo</b></td>
+      <td>Factor zoo critique</td>
+      <td>equity factor zoo 問題を社債へ適用。最近の流れ。<span class="small">（A2 のタイトル発想そのもの・最重要）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5167920" target="_blank" rel="noopener">SSRN</a></td>
+    </tr>
+    <tr>
+      <td><b>Momentum in Corporate Bond Returns</b></td>
+      <td>Credit momentum</td>
+      <td>社債 momentum の代表論文。<span class="small">（HvZ の Momentum ファクターの起源）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://academic.oup.com/rfs/article-abstract/26/7/1649/1591705" target="_blank" rel="noopener">RFS</a></td>
+    </tr>
+    <tr>
+      <td><b>Excess Bond Premium</b></td>
+      <td>EBP / intermediary risk</td>
+      <td>クレジットリスクプレミアムの代表研究。<span class="small">（＝ GZ 系、§② で再現済・<code>frb_ebp</code> ロード済）</span></td>
+      <td><span class="pill p-both">共通</span></td>
+      <td><a href="https://www.nber.org/papers/w20653" target="_blank" rel="noopener">NBER</a></td>
+    </tr>
+    <tr>
+      <td><b>The Cross-Section of Corporate Bond Returns</b></td>
+      <td>社債横断面リターン</td>
+      <td>anomaly / factor literature の基礎。<span class="small">（A2 の横断回帰の前提文献）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://academic.oup.com/rfs/article-abstract/33/9/4328/5819897" target="_blank" rel="noopener">RFS</a></td>
+    </tr>
+    <tr>
+      <td><b>Corporate Bond Liquidity Before and After the Onset of the Subprime Crisis</b></td>
+      <td>Liquidity factor</td>
+      <td>TRACE ベースの流動性研究。<span class="small">（＝ Dick-Nielsen+ 2012、§⑥ で既挙）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://academic.oup.com/jfec/article-abstract/12/2/336/816163" target="_blank" rel="noopener">JFEC</a></td>
+    </tr>
+    <tr>
+      <td><b>Betting Against Beta</b></td>
+      <td>Low-risk / BAB</td>
+      <td>株中心だが bond low-risk 議論の基礎。<span class="small">（＝ Frazzini-Pedersen 2014、HvZ の Low-Risk の理論的起源）</span></td>
+      <td><span class="pill p-a2">A2</span></td>
+      <td><a href="https://www.sciencedirect.com/science/article/abs/pii/S0304405X12002634" target="_blank" rel="noopener">JFE</a></td>
+    </tr>
+    <tr>
+      <td><b>Intermediary Asset Pricing</b></td>
+      <td>Dealer balance sheet factor</td>
+      <td>intermediary 制約による asset pricing。<span class="small">（手元 NY Fed PD / CFTC TFF と接続。孤立中のディーラー軸を埋める）</span></td>
+      <td><span class="pill p-both">共通</span></td>
+      <td><a href="https://www.aeaweb.org/articles?id=10.1257/aer.100.2.732" target="_blank" rel="noopener">AER</a></td>
+    </tr>
+    <tr>
+      <td><b>Financial Intermediary Capital</b></td>
+      <td>Intermediary capital factor</td>
+      <td>dealer BS と asset return。<span class="small">（He-Kelly-Manela 系の仲介資本ファクター）</span></td>
+      <td><span class="pill p-both">共通</span></td>
+      <td><a href="https://www.nber.org/papers/w21589" target="_blank" rel="noopener">NBER</a></td>
+    </tr>
+    <tr>
+      <td><b>Expected Stock Returns and Variance Risk Premia</b></td>
+      <td>Cross-asset risk premium</td>
+      <td>equity / credit / volatility linkage 研究で頻出。<span class="small">（MOVE / OVX / VIX を使う A1 のボラ軸に接続）</span></td>
+      <td><span class="pill p-a1">A1</span></td>
+      <td><a href="https://academic.oup.com/rfs/article-abstract/22/11/4463/1592902" target="_blank" rel="noopener">RFS</a></td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    生成: Claude Code（FI-research）｜ソース: <code>projects/replications</code> (6), <code>projects/derivatives</code> (3), <code>projects/00_exploration</code> (3 notebooks), <code>docs/handover.md</code>, <code>HANDOVER.md</code>。
+    <br>このファイルは自己完結型 HTML（外部依存なし）。ブラウザで開き、<b>印刷 → PDF として保存</b>で PDF 化できます。
+  </div>
+
+</div>
+</body>
+</html>
